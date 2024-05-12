@@ -107,7 +107,6 @@ public sealed partial class EntityStore : EntityStoreBase
     // --- buffers
     [Browse(Never)] private             int[]                   idBuffer;           //  8
     [Browse(Never)] private readonly    HashSet<int>            idBufferSet;        //  8
-    [Browse(Never)] private readonly    DataEntity              dataBuffer;         //  8
 
                     private             Intern                  intern;             // 88
     /// <summary>Contains state of <see cref="EntityStore"/> not relevant for application development.</summary>
@@ -165,9 +164,6 @@ public sealed partial class EntityStore : EntityStoreBase
         EnsureNodesLength(2);
         entityScripts       = new EntityScripts[1]; // invariant: entityScripts[0] = 0
         entityScriptCount   = 1;
-        idBuffer            = new int[1];
-        idBufferSet         = new HashSet<int>();
-        dataBuffer          = new DataEntity();
         Info                = new EntityStoreInfo(this);
     }
     #endregion

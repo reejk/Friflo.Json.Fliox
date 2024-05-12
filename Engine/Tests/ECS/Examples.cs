@@ -93,9 +93,6 @@ public static void AddComponents()
     Console.WriteLine($"name: {entity.GetComponent<EntityName>().value}");    // > name: Hello World!
     var value = entity.GetComponent<MyComponent>().value;
     Console.WriteLine($"MyComponent: {value}");         // > MyComponent: 42
-    
-    // Serialize entity to JSON
-    Console.WriteLine(entity.DebugJSON);
 }
 
 
@@ -175,26 +172,6 @@ public static void AddSignalHandler()
     var entity  = store.CreateEntity();
     entity.AddSignalHandler<MySignal>(signal => { Console.WriteLine(signal); }); // > entity: 1 - signal > MySignal    
     entity.EmitSignal(new MySignal());
-}
-
-[Test]
-public static void JsonSerialization()
-{
-    var store = new EntityStore();
-    var entity1 = store.CreateEntity(new EntityName("hello JSON"));
-    var entity2 = store.CreateEntity(new Position(1, 2, 3));
-
-    // --- Write store entities as JSON array
-    var serializer = new EntitySerializer();
-    var writeStream = new FileStream("entity-store.json", FileMode.Create);
-    serializer.WriteStore(store, writeStream);
-    writeStream.Close();
-    
-    // --- Read JSON array into new store
-    var targetStore = new EntityStore();
-    serializer.ReadIntoStore(targetStore, new FileStream("entity-store.json", FileMode.Open));
-    
-    Console.WriteLine($"entities: {targetStore.Count}"); // > entities: 2
 }
 
 [Test]

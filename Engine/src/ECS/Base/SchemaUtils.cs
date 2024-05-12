@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Friflo.Json.Fliox.Mapper;
 
 // ReSharper disable UseCollectionExpression
 // ReSharper disable once CheckNamespace
@@ -19,7 +18,7 @@ internal sealed class SchemaTypes
 
 internal static class SchemaUtils
 {
-    internal static EntitySchema RegisterSchemaTypes(TypeStore typeStore)
+    internal static EntitySchema RegisterSchemaTypes()
     {
         var assemblyLoader  = new AssemblyLoader();
         var assemblies      = assemblyLoader.GetEngineDependants();
@@ -30,7 +29,7 @@ internal static class SchemaUtils
             var types           = AssemblyLoader.GetComponentTypes(assembly);
             var engineTypes     = new List<SchemaType>();
             foreach (var type in types) {
-                var schemaType = CreateSchemaType(type, typeStore, schemaTypes);
+                var schemaType = CreateSchemaType(type, schemaTypes);
                 engineTypes.Add(schemaType);
             }
             dependants.Add(new EngineDependant (assembly, engineTypes));
@@ -39,7 +38,7 @@ internal static class SchemaUtils
         return new EntitySchema(dependants, schemaTypes);
     }
     
-    internal static SchemaType CreateSchemaType(Type type, TypeStore typeStore, SchemaTypes schemaTypes)
+    internal static SchemaType CreateSchemaType(Type type, SchemaTypes schemaTypes)
     {
         const BindingFlags flags    = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.InvokeMethod;
         
@@ -59,7 +58,7 @@ internal static class SchemaUtils
             {
                 // type: IComponent
                 var structIndex     = schemaTypes.components.Count + 1;
-                var createParams    = new object[] { typeStore, structIndex };
+                var createParams    = new object[] { structIndex };
                 var method          = typeof(SchemaUtils).GetMethod(nameof(CreateComponentType), flags);
                 var genericMethod   = method!.MakeGenericMethod(type);
                 var componentType   = (ComponentType)genericMethod.Invoke(null, createParams);
@@ -71,7 +70,7 @@ internal static class SchemaUtils
             {
                 // type: Script
                 var scriptIndex     = schemaTypes.scripts.Count + 1;
-                var createParams    = new object[] { typeStore, scriptIndex };
+                var createParams    = new object[] { scriptIndex };
                 var method          = typeof(SchemaUtils).GetMethod(nameof(CreateScriptType), flags);
                 var genericMethod   = method!.MakeGenericMethod(type);
                 var scriptType      = (ScriptType)genericMethod.Invoke(null, createParams);
@@ -82,24 +81,22 @@ internal static class SchemaUtils
         throw new InvalidOperationException($"Cannot create SchemaType for Type: {type}");
     }
     
-    internal static ComponentType CreateComponentType<T>(TypeStore typeStore, int structIndex)
+    internal static ComponentType CreateComponentType<T>(int structIndex)
         where T : struct, IComponent
     {
         var componentKey    = GetComponentKey(typeof(T));
-        var typeMapper      = typeStore.GetTypeMapper<T>();
-        return new ComponentType<T>(componentKey, structIndex, typeMapper);
+        return new ComponentType<T>(componentKey, structIndex);
     }
     
     /// <remarks>
     /// <see cref="ScriptType{T}.Index"/> must be assigned here.<br/>
     /// Unity initializes static fields of generic types already when creating a instance of that type.
     /// </remarks>
-    internal static ScriptType CreateScriptType<T>(TypeStore typeStore, int scriptIndex)
+    internal static ScriptType CreateScriptType<T>(int scriptIndex)
         where T : Script, new()
     {
         var scriptKey   = GetComponentKey(typeof(T));
-        var typeMapper  = typeStore.GetTypeMapper<T>();
-        return new ScriptType<T>(scriptKey, scriptIndex, typeMapper);
+        return new ScriptType<T>(scriptKey, scriptIndex);
     }
     
     private static string GetComponentKey(Type type)

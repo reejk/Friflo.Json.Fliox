@@ -66,22 +66,9 @@ public static class Test_Entity
         entity.AddChild(store.CreateEntity());
         entity.AddChild(store.CreateEntity());
         
-        var json =
-@"{
-    ""id"": 1,
-    ""children"": [
-        2,
-        3
-    ],
-    ""components"": {
-        ""pos"": {""x"":0,""y"":0,""z"":0},
-        ""script1"": {""val1"":0}
-    }
-}";
         AreEqual("",                            entity.Info.ToString());
         AreEqual(entity.Pid,                    entity.Info.Pid);
         AreEqual(entity.Enabled,                entity.Info.Enabled);
-        AreEqual(json,                          entity.Info.JSON);
         AreEqual("event types: 0, handlers: 0", entity.Info.EventHandlers.ToString());
     }
     

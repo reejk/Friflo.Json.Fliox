@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Reflection;
-using Friflo.Json.Burst;
-using Friflo.Json.Fliox;
 using static Friflo.Engine.ECS.SchemaTypeKind;
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -62,8 +60,6 @@ public abstract class SchemaType
     /// See <see cref="ComponentSymbolAttribute"/>
     /// </summary>
     public   readonly   SymbolColor?    SymbolColor;        // 12  
-    
-    internal readonly   Bytes           componentKeyBytes;  // 16
         
     internal SchemaType(string componentKey, Type type, SchemaTypeKind kind)
     {
@@ -71,9 +67,6 @@ public abstract class SchemaType
         Kind            = kind;
         Type            = type;
         Name            = type.Name;
-        if (componentKey != null) {
-            componentKeyBytes = new Bytes(componentKey);   
-        }
         SchemaUtils.GetComponentSymbol(type, out SymbolName, out SymbolColor);
     }
     
@@ -104,7 +97,6 @@ public abstract class SchemaType
         types.Add(typeof(DateTime),     blittable);
         types.Add(typeof(BigInteger),   blittable);
         //
-        types.Add(typeof(JsonValue),    blittable);
         types.Add(typeof(Entity),       blittable);
         //
         types.Add(typeof(string),       blittable);

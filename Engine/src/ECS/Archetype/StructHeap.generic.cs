@@ -2,10 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using Friflo.Json.Burst;
-using Friflo.Json.Fliox;
-using Friflo.Json.Fliox.Mapper;
-using Friflo.Json.Fliox.Mapper.Map;
 
 // ReSharper disable StaticMemberInGenericType
 // ReSharper disable once CheckNamespace
@@ -23,17 +19,15 @@ internal sealed class StructHeap<T> : StructHeap
     // --- internal fields
     internal            T[]             components;     //  8
     internal            T               componentStash; //  sizeof(T)
-    private  readonly   TypeMapper<T>   typeMapper;     //  8
     
     // --- static internal
     // Check initialization by directly calling unit test method: Test_SchemaType.Test_SchemaType_StructIndex()
     // readonly improves performance significant
     internal static readonly    int     StructIndex  = SchemaTypeUtils.GetStructIndex(typeof(T));
     
-    internal StructHeap(int structIndex, TypeMapper<T> mapper)
+    internal StructHeap(int structIndex)
         : base (structIndex)
     {
-        typeMapper      = mapper;
         components      = new T[ArchetypeUtils.MinCapacity];
     }
     
@@ -98,14 +92,4 @@ internal sealed class StructHeap<T> : StructHeap
     /// - it allows only reading struct values
     /// </summary>
     internal override IComponent GetComponentDebug(int compIndex) => components[compIndex];
-    
-    
-    internal override Bytes Write(ObjectWriter writer, int compIndex) {
-        ref var value = ref components[compIndex];
-        return writer.WriteAsBytesMapper(value, typeMapper);
-    }
-    
-    internal override void Read(ObjectReader reader, int compIndex, JsonValue json) {
-        components[compIndex] = reader.ReadMapper(typeMapper, json);  // todo avoid boxing within typeMapper, T is struct
-    }
 }

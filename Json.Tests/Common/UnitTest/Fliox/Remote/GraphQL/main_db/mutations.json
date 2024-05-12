@@ -1,9 +1,0 @@
-{
-  "creates": [
-    {
-      "id": "creates-upsert",
-      "name": "test creates variable",
-      "producer": "producer-samsung"
-    }
-  ]
-}

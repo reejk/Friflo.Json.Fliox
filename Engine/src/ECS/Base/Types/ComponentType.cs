@@ -3,7 +3,6 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using Friflo.Json.Fliox.Mapper.Map;
 using static Friflo.Engine.ECS.SchemaTypeKind;
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -43,13 +42,11 @@ public abstract class ComponentType : SchemaType
 internal sealed class ComponentType<T> : ComponentType 
     where T : struct, IComponent
 {
-    private readonly    TypeMapper<T>   typeMapper;
     public  override    string          ToString() => $"Component: [{typeof(T).Name}]";
 
-    internal ComponentType(string componentKey, int structIndex, TypeMapper<T> typeMapper)
+    internal ComponentType(string componentKey, int structIndex)
         : base(componentKey, structIndex, typeof(T), ByteSize)
     {
-        this.typeMapper = typeMapper;
     }
     
     internal override bool RemoveEntityComponent(Entity entity) {
@@ -69,7 +66,7 @@ internal sealed class ComponentType<T> : ComponentType
     }
     
     internal override StructHeap CreateHeap() {
-        return new StructHeap<T>(StructIndex, typeMapper);
+        return new StructHeap<T>(StructIndex);
     }
     
     internal override ComponentCommands CreateComponentCommands()

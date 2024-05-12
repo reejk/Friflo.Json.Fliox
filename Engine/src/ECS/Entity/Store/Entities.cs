@@ -85,11 +85,9 @@ public partial class EntityStore
         var archetype   = entity.archetype;
         CreateEntityInternal(archetype, id);
         var clone       = new Entity(this, id);
-        
-        var isBlittable = IsBlittable(entity);
 
         // todo optimize - serialize / deserialize only non blittable components and scripts
-        if (isBlittable) {
+        {
             var scriptTypeByType    = Static.EntitySchema.ScriptTypeByType;
             // CopyComponents() must be used only in case all component types are blittable
             Archetype.CopyComponents(archetype, entity.compIndex, clone.compIndex);
@@ -100,16 +98,6 @@ public partial class EntityStore
                 scriptClone.entity  = clone;
                 AddScript(clone, scriptClone, scriptType);
             }
-        } else {
-            // --- serialize entity
-            var converter       = EntityConverter.Default;
-            converter.EntityToDataEntity(entity, dataBuffer, false);
-            
-            // --- deserialize DataEntity
-            dataBuffer.pid      = IdToPid(clone.Id);
-            // convert will use entity created above
-            converter.DataEntityToEntity(dataBuffer, this, out string error); // error == null. No possibility for mapping errors
-            AssertNoError(error);
         }
         // Send event. See: SEND_EVENT notes
         CreateEntityEvent(clone);
@@ -122,26 +110,6 @@ public partial class EntityStore
             return;
         }
         throw new InvalidOperationException($"unexpected error: {error}");
-    }
-    
-    private static bool IsBlittable(Entity original)
-    {
-        foreach (var componentType in original.Archetype.componentTypes)
-        {
-            if (!componentType.IsBlittable) {
-                return false;
-            }
-        }
-        var scriptTypeByType    = Static.EntitySchema.ScriptTypeByType;
-        var scripts             = original.Scripts;
-        foreach (var script in scripts)
-        {
-            var scriptType = scriptTypeByType[script.GetType()];
-            if (!scriptType.IsBlittable) {
-                return false;
-            }    
-        }
-        return true;
     }
     
     [Conditional("DEBUG")] [ExcludeFromCodeCoverage] // assert invariant

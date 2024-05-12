@@ -3,9 +3,6 @@
 
 using System;
 using System.Text;
-using Friflo.Json.Burst;
-using Friflo.Json.Fliox;
-using Friflo.Json.Fliox.Mapper;
 
 // ReSharper disable FieldCanBeMadeReadOnly.Local
 // ReSharper disable InconsistentNaming
@@ -38,8 +35,6 @@ internal abstract class StructHeap
     internal  abstract  void        SetComponentDefault     (int compIndex);
     internal  abstract  IComponent  GetComponentStashDebug  ();
     internal  abstract  IComponent  GetComponentDebug       (int compIndex);
-    internal  abstract  Bytes       Write                   (ObjectWriter writer, int compIndex);
-    internal  abstract  void        Read                    (ObjectReader reader, int compIndex, JsonValue json);
 
     internal StructHeap(int structIndex) {
         this.structIndex    = structIndex;

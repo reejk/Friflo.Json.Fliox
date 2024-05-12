@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using Friflo.Json.Fliox;
 using static System.Diagnostics.DebuggerBrowsableState;
 using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
 // Hard Rule! file must not have any dependency a to a specific game engine. E.g. Unity, Godot, Monogame, ...
@@ -19,21 +18,21 @@ public abstract class BaseSystem
     [Browse(Never)]         public virtual      string          Name        => systemName;
     [Browse(Never)]         public              SystemRoot      SystemRoot  => systemRoot;
     [Browse(Never)]         public              SystemGroup     ParentGroup => parentGroup;
-    [Browse(Never)][Ignore] public              bool            Enabled     { get => enabled; set => enabled = value; }
+    [Browse(Never)]         public              bool            Enabled     { get => enabled; set => enabled = value; }
     [Browse(Never)]         public              int             Id          => id;
     [Browse(Never)]         public ref readonly SystemPerf      Perf        => ref perf;
                             internal            View            System      => view ??= new View(this);
     #endregion
         
 #region fields
-    [Browse(Never)] [Ignore]    public              UpdateTick  Tick;
-    [Browse(Never)] [Serialize] internal            int         id;
-    [Browse(Never)] [Serialize] internal            bool        enabled = true;
-    [Browse(Never)]             private readonly    string      systemName;
-    [Browse(Never)]             private             SystemGroup parentGroup;
-    [Browse(Never)]             private             SystemRoot  systemRoot;
-    [Browse(Never)] [Ignore]    internal            SystemPerf  perf;
-    [Browse(Never)]             private             View        view;
+    [Browse(Never)] public              UpdateTick  Tick;
+    [Browse(Never)] internal            int         id;
+    [Browse(Never)] internal            bool        enabled = true;
+    [Browse(Never)] private readonly    string      systemName;
+    [Browse(Never)] private             SystemGroup parentGroup;
+    [Browse(Never)] private             SystemRoot  systemRoot;
+    [Browse(Never)] internal            SystemPerf  perf;
+    [Browse(Never)] private             View        view;
     #endregion
      
 #region constructors

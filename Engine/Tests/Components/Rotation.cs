@@ -5,7 +5,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Json.Fliox;
 using static System.Diagnostics.DebuggerBrowsableState;
 using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
 
@@ -22,7 +21,6 @@ namespace Friflo.Engine.ECS;
 public struct  Rotation : IComponent, IEquatable<Rotation>
 {
     [Browse(Never)]
-    [Ignore]
     [FieldOffset (0)] public    Quaternion  value;  // 16
     //
     [FieldOffset (0)] public    float       x;      // (4)

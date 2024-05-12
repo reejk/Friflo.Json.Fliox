@@ -34,12 +34,12 @@ public static class Test_ComponentType
     {
         var schemaTypes = new SchemaTypes();
         var e = Throws<InvalidOperationException>(() => {
-            SchemaUtils.CreateSchemaType(typeof(string), null, schemaTypes);
+            SchemaUtils.CreateSchemaType(typeof(string), schemaTypes);
         });
         AreEqual("Cannot create SchemaType for Type: System.String", e!.Message);
         
         e = Throws<InvalidOperationException>(() => {
-            SchemaUtils.CreateSchemaType(typeof(Guid), null, schemaTypes);
+            SchemaUtils.CreateSchemaType(typeof(Guid), schemaTypes);
         });
         AreEqual("Cannot create SchemaType for Type: System.Guid", e!.Message);
     }
