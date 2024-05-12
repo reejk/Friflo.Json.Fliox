@@ -83,7 +83,7 @@ public static class Test_Batch
         AreEqual(5, batch.CommandCount);
         batch.Apply();
         
-        AreEqual("id: 1  \"test\"  [EntityName, Position, #TestTag]", entity.ToString());
+        AreEqual("id: 1  [EntityName, Position, #TestTag]", entity.ToString());
         AreEqual(new Position(1, 1, 1), entity.GetComponent<Position>());
         AreEqual(1, store.Info.PooledEntityBatchCount);
         

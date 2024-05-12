@@ -370,11 +370,11 @@ public static class Test_CommandBuffer
         
         int  newEntity = ecb.CreateEntity();
         ecb.Playback();
-        AreEqual(3, store.Count);
+        AreEqual(2, store.Count);
         
         ecb.DeleteEntity(newEntity);
         ecb.Playback();
-        AreEqual(2, store.Count);
+        AreEqual(1, store.Count);
     }
     
     [Test]
