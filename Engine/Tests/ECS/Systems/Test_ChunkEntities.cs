@@ -17,12 +17,10 @@ public static class Test_ChunkEntities
         var root  = store.StoreRoot;
         
         var child = store.CreateEntity();
-        root.AddChild(child);
         child.AddComponent(new Position(2, 0, 0));
         for (int n = 3; n <= 1000; n++) {
             child = child.Archetype.CreateEntity();
             child.GetComponent<Position>() = new Position(n, 0, 0);
-            root.AddChild(child);
         }
         
         var query = store.Query<Position>();

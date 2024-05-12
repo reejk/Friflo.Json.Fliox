@@ -4,7 +4,6 @@
 using System;
 using static System.Diagnostics.DebuggerBrowsableState;
 using static Friflo.Engine.ECS.StoreOwnership;
-using static Friflo.Engine.ECS.TreeMembership;
 using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
 
 namespace Friflo.Engine.ECS;
@@ -42,13 +41,6 @@ namespace Friflo.Engine.ECS;
 /// <br/>
 /// An <see cref="Entity"/> is typically an object that can be rendered on screen like a cube, sphere, capsule, mesh, sprite, ... .<br/>
 /// Therefore a renderable component needs to be added with <see cref="AddComponent{T}()"/> to an <see cref="Entity"/>.<br/>
-/// <br/>
-/// <b>Child entities</b>
-/// <br/>
-/// An <see cref="Entity"/> can be added to another <see cref="Entity"/> using <see cref="AddChild"/>.<br/>
-/// The added <see cref="Entity"/> becomes a child of the <see cref="Entity"/> it is added to - its <see cref="Parent"/>.<br/>
-/// This enables to build up a complex game scene with a hierarchy of <see cref="Entity"/>'s.<br/>
-/// The order of children contained by an entity is the insertion order.<br/>  
 /// <br/>
 /// <b>Scripts</b>
 /// <br/>
@@ -96,14 +88,6 @@ namespace Friflo.Engine.ECS;
 ///       <see cref="TagsChanged.AddedTags"/>, <see cref="TagsChanged.RemovedTags"/>
 ///     </description>
 ///   </item>
-///   <item>
-///     <description>child entity</description>
-///     <description><see cref="OnChildEntitiesChanged"/></description>
-///     <description><see cref="ChildEntitiesChanged"/></description>
-///     <description>
-///       <see cref="ChildEntitiesChangedAction.Add"/>, <see cref="ChildEntitiesChangedAction.Remove"/>
-///     </description>
-///   </item>
 /// </list>
 /// </para>
 /// <para>
@@ -137,21 +121,12 @@ namespace Friflo.Engine.ECS;
 ///     <see cref="RemoveTags"/>        <br/>
 /// </item>
 /// <item>  <b>child entities</b>       <br/>
-///     <see cref="Parent"/>            <br/>
-///     <see cref="ChildEntities"/>     <br/>
-///     <see cref="ChildIds"/>          <br/>
-///     <see cref="ChildCount"/>        <br/>
-///     <see cref="AddChild"/>          <br/>
-///     <see cref="InsertChild"/>       <br/>
-///     <see cref="RemoveChild"/>       <br/>
 ///     <see cref="DeleteEntity"/>      <br/>
-///     <see cref="GetChildIndex"/>     <br/>
 /// </item>
 /// <item>  <b>events</b>                           <br/>
 ///     <see cref="OnTagsChanged"/>                 <br/>
 ///     <see cref="OnComponentChanged"/>            <br/>
 ///     <see cref="OnScriptChanged"/>               <br/>
-///     <see cref="OnChildEntitiesChanged"/>        <br/>
 ///     <see cref="DebugEventHandlers"/>            <br/>
 /// </item>
 /// <item>  <b>signals</b>                          <br/>
@@ -197,11 +172,6 @@ public readonly struct Entity : IEquatable<Entity>
     /// <remarks>If <see cref="attached"/> its <see cref="Store"/> and <see cref="Archetype"/> are not null. Otherwise null.</remarks>
     [Browse(Never)] public  StoreOwnership      StoreOwnership  => archetype != null ? attached : detached;
     
-    /// <returns>
-    /// <see cref="treeNode"/> if the entity is member of the <see cref="EntityStore"/> tree graph.<br/>
-    /// Otherwise <see cref="floating"/></returns>
-    [Browse(Never)] public  TreeMembership      TreeMembership  => archetype.entityStore.GetTreeMembership(Id);
-    
     /// <summary> Returns true if the entity was deleted. </summary>
     [Browse(Never)] public  bool                IsNull          => store?.nodes[Id].archetype == null;
     
@@ -213,36 +183,6 @@ public readonly struct Entity : IEquatable<Entity>
     /// </summary>
     [Browse(Never)] public   bool               Enabled
                     { get => !Tags.HasAll(EntityUtils.Disabled); set { if (value) RemoveTags(EntityUtils.Disabled); else AddTags(EntityUtils.Disabled); } }
-    #endregion
-
-
-
-
-
-    // ------------------------------------ child / tree properties -------------------------------
-#region child / tree - properties
-    /// <summary>Return the number of child entities.</summary>
-    [Browse(Never)] public  int                 ChildCount  => archetype.entityStore.nodes[Id].childCount;
-    
-    /// <summary>Returns the parent entity that contains the entity.</summary>
-    /// <returns>
-    /// null if the entity has no parent.<br/>
-    /// <i>Note:</i>The <see cref="EntityStore"/>.<see cref="EntityStore.StoreRoot"/> returns always null
-    /// </returns>
-    /// <remarks>Executes in O(1)</remarks> 
-                    public  Entity              Parent      => EntityStore.GetParent(archetype.entityStore, Id);
-    
-    /// <summary>Return all child entities of an entity.</summary>
-    /// <remarks>
-    /// Executes in O(1).<br/> Enumerate with:
-    /// <code>
-    ///     foreach (var child in entity.ChildEntities)
-    /// </code>
-    /// </remarks>
-     public  ChildEntities       ChildEntities   => EntityStore.GetChildEntities(archetype.entityStore, Id);
-    
-    /// <summary>Return the ids of the child entities.</summary>
-    [Browse(Never)] public  ReadOnlySpan<int>   ChildIds        => EntityStore.GetChildIds(archetype.entityStore, Id);
     #endregion
 
 
@@ -392,12 +332,6 @@ public readonly struct Entity : IEquatable<Entity>
         int index = 0;
         return EntityStoreBase.RemoveTags(archetype.store, tags,          Id, ref refArchetype, ref refCompIndex, ref index);
     }
-    
-    /// <summary> Enable recursively all child entities of the <see cref="Entity"/>. </summary>
-    public void EnableTree()  => EntityUtils.RemoveTreeTags(this, EntityUtils.Disabled);
-    
-    /// <summary> Disable recursively all child entities of the <see cref="Entity"/>. </summary>
-    public void DisableTree() => EntityUtils.AddTreeTags(this, EntityUtils.Disabled);
     #endregion
 
 
@@ -406,53 +340,12 @@ public readonly struct Entity : IEquatable<Entity>
     // ------------------------------------ child / tree methods ----------------------------------
 #region child / tree - methods
     /// <summary>
-    /// Add the given <paramref name="entity"/> as a child to the entity.<br/>
-    /// See <a href="https://github.com/friflo/Friflo.Json.Fliox/blob/main/Engine/README.md#child-entities">Example.</a>
-    /// </summary>
-    /// <remarks>
-    /// Executes in O(1).<br/>If its <see cref="TreeMembership"/> changes O(number of nodes in sub tree).<br/>
-    /// The subtree structure of the added entity remains unchanged<br/>
-    /// </remarks>
-    /// <returns>
-    /// The index within <see cref="ChildIds"/> the <paramref name="entity"/> is added.<br/>
-    /// -1 if the <paramref name="entity"/> is already a child entity.
-    /// </returns>
-    public int AddChild(Entity entity) {
-        var entityStore = archetype.entityStore;
-        if (entityStore != entity.archetype.store) throw EntityStoreBase.InvalidStoreException(nameof(entity));
-        return entityStore.AddChild(Id, entity.Id);
-    }
-    /// <summary>Insert the given <paramref name="entity"/> as a child to the entity at the passed <paramref name="index"/>.</summary>
-    /// <remarks>
-    /// Executes in O(1) in case <paramref name="index"/> == <see cref="ChildCount"/>.<br/>
-    /// Otherwise O(N). N = <see cref="ChildCount"/> - <paramref name="index"/><br/>
-    /// If its <see cref="TreeMembership"/> changes O(number of nodes in sub tree).<br/>
-    /// The subtree structure of the added entity remains unchanged<br/>
-    /// </remarks>
-    public void InsertChild(int index, Entity entity) {
-        var entityStore = archetype.entityStore;
-        if (entityStore != entity.archetype.store) throw EntityStoreBase.InvalidStoreException(nameof(entity));
-        entityStore.InsertChild(Id, entity.Id, index);
-    }
-    /// <summary>Remove the given child <paramref name="entity"/> from the entity.</summary>
-    /// <remarks>
-    /// Executes in O(N) to search the entity. N = <see cref="ChildCount"/><br/>
-    /// If its <see cref="TreeMembership"/> changes (in-tree / floating) O(number of nodes in sub tree).<br/>
-    /// The subtree structure of the removed entity remains unchanged<br/>
-    /// </remarks>
-    public bool RemoveChild(Entity entity) {
-        var entityStore = archetype.entityStore;
-        if (entityStore != entity.archetype.store) throw EntityStoreBase.InvalidStoreException(nameof(entity));
-        return entityStore.RemoveChild(Id, entity.Id);
-    }
-    
-    /// <summary>
     /// Delete the entity from its <see cref="EntityStore"/>.<br/>
     /// The deleted instance is in <see cref="detached"/> state.
     /// Calling <see cref="Entity"/> methods result in <see cref="NullReferenceException"/>'s
     /// </summary>
     /// <remarks>
-    /// Executes in O(1) in case the entity has no children and if it is the last entity in <see cref="Parent"/>.<see cref="ChildIds"/>
+    /// Executes in O(1)
     /// </remarks>
     public void DeleteEntity()
     {
@@ -467,11 +360,7 @@ public readonly struct Entity : IEquatable<Entity>
             entityStore.DeleteNode(Id); 
             Archetype.MoveLastComponentsTo(arch, componentIndex);
         }
-    }
-    /// <summary>Return the position of the given <paramref name="child"/> in the entity.</summary>
-    /// <param name="child"></param>
-    /// <returns></returns>
-    public int  GetChildIndex(Entity child)     => archetype.entityStore.GetChildIndex(Id, child.Id);    
+    }   
     #endregion
 
 
@@ -549,14 +438,7 @@ public readonly struct Entity : IEquatable<Entity>
     /// </summary>
     public event Action<ScriptChanged>          OnScriptChanged         { add    => EntityStore.AddScriptChangedHandler             (store, Id, value);
                                                                           remove => EntityStore.RemoveScriptChangedHandler          (store, Id, value);  }
-    /// <summary>
-    /// Add / remove an event handler for <see cref="ChildEntitiesChanged"/> events triggered by:<br/>
-    /// <see cref="AddChild"/> <br/> <see cref="InsertChild"/> <br/> <see cref="RemoveChild"/>.<br/>
-    /// See <a href="https://github.com/friflo/Friflo.Json.Fliox/blob/main/Engine/README.md#event">Example.</a>
-    /// </summary>
-    public event Action<ChildEntitiesChanged>   OnChildEntitiesChanged  { add    => EntityStore.AddChildEntitiesChangedHandler      (store, Id, value);
-                                                                          remove => EntityStore.RemoveChildEntitiesChangedHandler   (store, Id, value);  }
-    
+
     /// <summary>
     /// Add the given <see cref="Signal{TEvent}"/> handler to the entity.<br/>
     /// See <a href="https://github.com/friflo/Friflo.Json.Fliox/blob/main/Engine/README.md#signal">Example.</a>

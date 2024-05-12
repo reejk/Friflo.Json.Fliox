@@ -26,35 +26,6 @@ public static class Test_Entity
         AreEqual(new Position(1,2,3),   (Position)components[1]);
     }
     
-    
-    [Test]
-    public static void Test_Entity_Children()
-    {
-        var store = new EntityStore(PidType.RandomPids);
-        var entity = store.CreateEntity();
-        var child1 = store.CreateEntity();
-        var child2 = store.CreateEntity();
-        var sub11   = store.CreateEntity();
-        var sub12   = store.CreateEntity();
-        var sub21   = store.CreateEntity();
-        
-        AreEqual(0, entity.ChildEntities.ToArray().Length);
-        
-        entity.AddChild(child1);
-        entity.AddChild(child2);
-        child1.AddChild(sub11);
-        child1.AddChild(sub12);
-        child2.AddChild(sub21);
-        
-        var children = entity.ChildEntities.ToArray();
-        AreEqual(2, children.Length);
-        AreEqual(child1, children[0]);
-        AreEqual(child2, children[1]);
-        
-        AreEqual(2, child1.ChildEntities.Count);
-        AreEqual(1, child2.ChildEntities.Count);
-    }
-    
     [Test]
     public static void Test_Entity_Info()
     {
@@ -63,8 +34,6 @@ public static class Test_Entity
         
         entity.AddComponent<Position>();
         entity.AddScript(new TestScript1());
-        entity.AddChild(store.CreateEntity());
-        entity.AddChild(store.CreateEntity());
         
         AreEqual("",                            entity.Info.ToString());
         AreEqual(entity.Pid,                    entity.Info.Pid);
@@ -77,13 +46,9 @@ public static class Test_Entity
     {
         var store   = new EntityStore(PidType.UsePidAsId);
         var entity1 = store.CreateEntity();
-        var entity2 = store.CreateEntity();
-
         entity1.OnScriptChanged         += _ => { };
-        entity2.OnChildEntitiesChanged  += _ => { };
 
         AreEqual("event types: 1, handlers: 1", entity1.Info.EventHandlers.ToString());
-        AreEqual("event types: 1, handlers: 1", entity2.Info.EventHandlers.ToString());
     }
     
     [Test]
@@ -94,8 +59,6 @@ public static class Test_Entity
         root.AddComponent(new EntityName("root"));
         
         var entity  = store.CreateEntity();
-        root.AddChild(entity);
-
         entity.AddComponent(new EntityName("hello entity"));
         entity.AddComponent(new Position(10, 10, 0));
         entity.AddTag<MyTag>();
@@ -103,7 +66,6 @@ public static class Test_Entity
         var child1 = store.CreateEntity();
         child1.AddComponent(new Position(1, 1, 0));
         child1.Enabled = false;
-        entity.AddChild(child1);
         
         DebuggerEntityScreenshot(entity);
     }
@@ -127,22 +89,6 @@ public static class Test_Entity
         AreEqual(2, components.Length);
         AreEqual(new Position(), components[0]);
         AreEqual(new Rotation(), components[1]);
-    }
-    
-    [Test]
-    public static void Test_Entity_ChildEntities_DebugView()
-    {
-        var store   = new EntityStore(PidType.UsePidAsId);
-        var entity  = store.CreateEntity(1);
-        entity.AddChild(store.CreateEntity(2));
-        entity.AddChild(store.CreateEntity(3));
-        
-        var debugView   = new ChildEntitiesDebugView(entity.ChildEntities);
-        var entities    = debugView.Entities;
-        
-        AreEqual(2, entities.Length);
-        AreEqual(2, entities[0].Id);
-        AreEqual(3, entities[1].Id);
     }
     
     [Test]

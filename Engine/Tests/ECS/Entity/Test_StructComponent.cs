@@ -195,9 +195,6 @@ public static class Test_StructComponent
         AreEqual(2,         store.Count);
         var node = store.GetEntityNode(1);          // check node fields are reset to default values
         IsTrue  (player1 == store.GetEntityById(node.Id));
-        AreEqual(0,         node.ChildCount);
-        AreEqual(0,         node.ChildIds.Length);
-        AreEqual(0,         node.ParentId);
         AreEqual("entities: 2", store.ToString());
         
         long count = 10; // 1_000_000_000L ~ #PC: 969 ms

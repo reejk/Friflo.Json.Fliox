@@ -26,7 +26,6 @@ namespace Friflo.Engine.ECS;
 ///   <item><see cref="Id"/> to identify an entity in its <see cref="EntityStore"/></item>
 ///   <item><see cref="Pid"/> used to store entities in a database</item>
 ///   <item><see cref="Entity"/> to access the <see cref="ECS.Entity"/> attached to a node</item>
-///   <item><see cref="ParentId"/> and <see cref="ChildIds"/> to get the direct related nodes</item>
 /// </list>
 /// <b><see cref="Id"/></b><br/>
 /// The entity id change when performing an <see cref="EntityStore"/> id cleanup.<br/>
@@ -55,16 +54,7 @@ public struct EntityNode
     
     /// <summary>The <see cref="ECS.Archetype"/> the entity node is stored.</summary>
                     public              Archetype           Archetype   =>  archetype;
-    
-    /// <summary>The child entities of an entity as an array of ids.</summary>
-                    public              ReadOnlySpan<int>   ChildIds    =>  new (childIds, 0, childCount);
-                    
-    /// <summary>Number of child entities.</summary>
-    [Browse(Never)] public              int                 ChildCount  =>  childCount;
-    
-    /// <summary>The parent id of the entity. 0 - if the entity has no parent.</summary>
-                    public              int                 ParentId    =>  parentId;
-                    
+          
     /// <summary>Internally used flags assigned to the entity.</summary>
                     public              NodeFlags           Flags       =>  flags;
                     
@@ -74,9 +64,6 @@ public struct EntityNode
 #region internal fields
     [Browse(Never)] internal    int             id;             //  4   not readonly for perf. If readonly EnsureCapacity() & EnsureNodesLength() must call its constructor.  
     [Browse(Never)] internal    long            pid;            //  8   permanent id used for serialization
-    [Browse(Never)] internal    int             parentId;       //  4   0 if entity has no parent
-                    internal    int[]           childIds;       //  8   null if entity has no child entities
-    [Browse(Never)] internal    int             childCount;     //  4   count of child entities
     /// <summary> Use <see cref="Is"/> or <see cref="IsNot"/> for read access. </summary>
     [Browse(Never)] internal    NodeFlags       flags;          //  4 (1)
     /// <remarks> Is set to null only in <see cref="EntityStore.DeleteNode"/>. </remarks>
@@ -107,19 +94,9 @@ public struct EntityNode
             sb.Append("id: ");
             sb.Append(id);
         }
-        if (childCount > 0) {
-            if (sb.Length > 0) {
-                sb.Append("  ");    
-            }
-            sb.Append("ChildCount: ");
-            sb.Append(childCount);
-        }
         if (flags != 0) {
             sb.Append("  flags: ");
             var startPos = sb.Length;
-            if (Is(TreeNode)) {
-                sb.Append("TreeNode");
-            }
             if (Is(Created)) {
                 if (startPos < sb.Length) {
                     sb.Append(" | ");
@@ -137,7 +114,6 @@ public struct EntityNode
 /// <see cref="EntityStoreBase.InternBase.entityComponentChanged"/><br/>
 /// <see cref="EntityStoreBase.InternBase.entityTagsChanged"/><br/>
 /// <see cref="EntityStore.Intern.entityScriptChanged"/><br/>
-/// <see cref="EntityStore.Intern.entityChildEntitiesChanged"/><br/>
 /// </summary>
 [Flags]
 internal enum HasEventFlags : byte
@@ -148,8 +124,6 @@ internal enum HasEventFlags : byte
     TagsChanged             = 2,
     /// <summary> Bit is set - <see cref="EntityStore.Intern.entityScriptChanged"/>.Count > 0<br/> </summary>
     ScriptChanged           = 4,
-    /// <summary> Bit is set - <see cref="EntityStore.Intern.entityChildEntitiesChanged"/>.Count > 0<br/> </summary>
-    ChildEntitiesChanged    = 8,
 }
 
 

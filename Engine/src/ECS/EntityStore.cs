@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Friflo.Engine.ECS.Serialize;
 using static System.Diagnostics.DebuggerBrowsableState;
 using static Friflo.Engine.ECS.StoreOwnership;
 using static Friflo.Engine.ECS.TreeMembership;
@@ -71,10 +70,6 @@ public sealed partial class EntityStore : EntityStoreBase
     #endregion
     
 #region events
-    /// <summary>Add / remove an event handler for <see cref="ECS.ChildEntitiesChanged"/> events triggered by:<br/>
-    /// <see cref="Entity.AddChild"/> <br/> <see cref="Entity.InsertChild"/> <br/> <see cref="Entity.RemoveChild"/>.</summary>
-    public  event   Action<ChildEntitiesChanged>    OnChildEntitiesChanged  { add => intern.childEntitiesChanged+= value;   remove => intern.childEntitiesChanged -= value; }
-    
     /// <summary>Add / remove an event handler for <see cref="ECS.ScriptChanged"/> events triggered by:<br/>
     /// <see cref="Entity.AddScript{T}"/>.</summary>
     public  event   Action<ScriptChanged>           OnScriptAdded           { add => intern.scriptAdded         += value;   remove => intern.scriptAdded    -= value; }
@@ -119,9 +114,6 @@ public sealed partial class EntityStore : EntityStoreBase
 
                         internal            int                     sequenceId;             //  4   - incrementing id used for next new entity
         // --- delegates
-        internal    Action                <ChildEntitiesChanged>    childEntitiesChanged;   // 8   - fires event on add, insert, remove or delete an Entity
-        internal    Dictionary<int, Action<ChildEntitiesChanged>>   entityChildEntitiesChanged;//  8
-        //
         internal    Action                <ScriptChanged>           scriptAdded;            //  8   - fires event on add script
         internal    Action                <ScriptChanged>           scriptRemoved;          //  8   - fires event on remove script
         internal    Dictionary<int, Action<ScriptChanged>>          entityScriptChanged;    //  8   - entity event handlers for add/remove script

@@ -10,20 +10,6 @@ namespace Internal.ECS {
 
 public static class Test_EntityStore
 {
-    /// <summary>Cover <see cref="EntityStore.DeleteNode"/></summary>
-    [Test]
-    public static void Test_EntityStore_DeleteEntity()
-    {
-        var store = new EntityStore(PidType.UsePidAsId);
-        var entity = store.CreateEntity(10);
-        store.nodes[10].parentId = 5;
-        
-        var e = Throws<InvalidOperationException>(() => {
-            entity.DeleteEntity();
-        });
-        AreEqual("unexpected state: child id not found. parent id: 5, child id: 10", e!.Message);
-    }
-    
     /// <summary>Cover <see cref="EntityStoreBase.AddArchetype"/></summary>
     [Test]
     public static void Test_Tags_cover_AddArchetype() {

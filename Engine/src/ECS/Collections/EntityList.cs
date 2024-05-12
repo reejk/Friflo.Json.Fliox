@@ -101,27 +101,6 @@ public sealed class EntityList : IList<Entity>
         }
         ids[count++] = id;
     }
-    
-    /// <summary>
-    /// Adds the <paramref name="entity"/> and recursively all child entities of the given <paramref name="entity"/>
-    /// to the end of the <see cref="EntityList"/>.
-    /// </summary>
-    public void AddTree(Entity entity)
-    {
-        if (entity.store != entityStore) throw EntityStoreBase.InvalidStoreException(nameof(entity));
-        AddEntityTree(new Span<EntityNode>(entity.store.nodes), entity.Id);
-    }
-    
-    private void AddEntityTree(Span<EntityNode> nodes, int entityId)
-    {
-        Add(entityId);
-        ref var node    = ref nodes[entityId];
-        var childCount  = node.childCount;
-        var childIds    = node.childIds;
-        for (int index = 0; index < childCount; index++) {
-            AddEntityTree(nodes, childIds[index]);
-        }
-    }
     #endregion
     
 #region apply entity changes
