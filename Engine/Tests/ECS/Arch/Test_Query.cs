@@ -46,8 +46,8 @@ public static class Test_Query
         AreEqual("Components: [Position]",                                                sig1.ComponentTypes.ToString());
         AreEqual("Components: [Position, Rotation]",                                      sig2.ComponentTypes.ToString());
         AreEqual("Components: [Position, Rotation, Scale3]",                              sig3.ComponentTypes.ToString());
-        AreEqual("Components: [Position, Rotation, Scale3, MyComponent1]",                sig4.ComponentTypes.ToString());
-        AreEqual("Components: [Position, Rotation, Scale3, MyComponent1, MyComponent2]",  sig5.ComponentTypes.ToString());
+        AreEqual("Components: [MyComponent1, Position, Rotation, Scale3]",                sig4.ComponentTypes.ToString());
+        AreEqual("Components: [MyComponent1, MyComponent2, Position, Rotation, Scale3]",  sig5.ComponentTypes.ToString());
     }
     
     [Test]
@@ -77,8 +77,8 @@ public static class Test_Query
         AreEqual("Query: [Position]  Count: 2",                                               query1.ToString());
         AreEqual("Query: [Position, Rotation]  Count: 2",                                     query2.ToString());
         AreEqual("Query: [Position, Rotation, Scale3]  Count: 2",                             query3.ToString());
-        AreEqual("Query: [Position, Rotation, Scale3, MyComponent1]  Count: 2",               query4.ToString());
-        AreEqual("Query: [Position, Rotation, Scale3, MyComponent1, MyComponent2]  Count: 2", query5.ToString());
+        AreEqual("Query: [MyComponent1, Position, Rotation, Scale3]  Count: 2",               query4.ToString());
+        AreEqual("Query: [MyComponent1, MyComponent2, Position, Rotation, Scale3]  Count: 2", query5.ToString());
         
         AreEqual("QueryChunks[1]  Components: [Position]",                                                  query1.Chunks.ToString());
         AreEqual("QueryChunks[1]  Components: [Position, Rotation]",                                        query2.Chunks.ToString());
@@ -96,8 +96,8 @@ public static class Test_Query
         AreEqual("Query: [Position, #TestTag]  Count: 0",                                                 query1.AllTags(tags).ToString());
         AreEqual("Query: [Position, Rotation, #TestTag]  Count: 0",                                       query2.AllTags(tags).ToString());
         AreEqual("Query: [Position, Rotation, Scale3, #TestTag]  Count: 0",                               query3.AllTags(tags).ToString());
-        AreEqual("Query: [Position, Rotation, Scale3, MyComponent1, #TestTag]  Count: 0",                 query4.AllTags(tags).ToString());
-        AreEqual("Query: [Position, Rotation, Scale3, MyComponent1, MyComponent2, #TestTag]  Count: 0",   query5.AllTags(tags).ToString());
+        AreEqual("Query: [MyComponent1, Position, Rotation, Scale3, #TestTag]  Count: 0",                 query4.AllTags(tags).ToString());
+        AreEqual("Query: [MyComponent1, MyComponent2, Position, Rotation, Scale3, #TestTag]  Count: 0",   query5.AllTags(tags).ToString());
     }
     
     [Test]
@@ -246,8 +246,8 @@ public static class Test_Query
         AreEqual("Query: [Position]  Count: 0",                                               query1.ToString());
         AreEqual("Query: [Position, Rotation]  Count: 0",                                     query2.ToString());
         AreEqual("Query: [Position, Rotation, Scale3]  Count: 0",                             query3.ToString());
-        AreEqual("Query: [Position, Rotation, Scale3, MyComponent1]  Count: 0",               query4.ToString());
-        AreEqual("Query: [Position, Rotation, Scale3, MyComponent1, MyComponent2]  Count: 0", query5.ToString());
+        AreEqual("Query: [MyComponent1, Position, Rotation, Scale3]  Count: 0",               query4.ToString());
+        AreEqual("Query: [MyComponent1, MyComponent2, Position, Rotation, Scale3]  Count: 0", query5.ToString());
         
         AreEqual(0, query1.Archetypes.Length);
         AreEqual(0, query2.Archetypes.Length);

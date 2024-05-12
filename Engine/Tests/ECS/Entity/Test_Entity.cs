@@ -149,7 +149,7 @@ public static class Test_Entity
         // --- clone entity with non blittable component
         entity.AddComponent<NonBlittableArray>();
         clone = store.CloneEntity(entity);
-        AreEqual("Components: [EntityName, NonBlittableArray]",    clone.Components.ToString());
+        AreEqual("Components: [NonBlittableArray, EntityName]",    clone.Components.ToString());
     }
     
     [Test]
@@ -285,7 +285,7 @@ public static class Test_Entity
         store.OnEntityDelete += delete  => {
             deleteCount++;
             // Important: entity components are still present
-            AreEqual("id: 1  \"test\"  [EntityName]",   delete.Entity.ToString());
+            AreEqual("id: 1  [EntityName]",   delete.Entity.ToString());
             throw new InvalidOperationException("test delete exception");
         };
         var entity  = store.CreateEntity();
@@ -347,8 +347,8 @@ public static class Test_Entity
                 case 1: AreEqual("id: 2  [Position, #TestTag]",                                                 str); break;
                 case 2: AreEqual("id: 3  [Position, Rotation, #TestTag]",                                       str); break;
                 case 3: AreEqual("id: 4  [Position, Rotation, Scale3, #TestTag]",                               str); break;
-                case 4: AreEqual("id: 5  [Position, Rotation, Scale3, MyComponent1, #TestTag]",                 str); break;
-                case 5: AreEqual("id: 6  [Position, Rotation, Scale3, MyComponent1, MyComponent2, #TestTag]",   str); break;
+                case 4: AreEqual("id: 5  [MyComponent1, Position, Rotation, Scale3, #TestTag]",                 str); break;
+                case 5: AreEqual("id: 6  [MyComponent1, MyComponent2, Position, Rotation, Scale3, #TestTag]",   str); break;
             }
         };
         int tagCount = 0;

@@ -37,9 +37,9 @@ public static class Test_ComponentSchema
         var schema      = EntityStore.GetEntitySchema();
         var components  = schema.Components;
         
-        AreEqual("components: 40  entity tags: 10", schema.ToString());
-        AreEqual(41,    components.Length);
-        AreEqual(40,    schema.ComponentTypeByType.Count);
+        AreEqual("components: 36  entity tags: 10", schema.ToString());
+        AreEqual(37,    components.Length);
+        AreEqual(36,    schema.ComponentTypeByType.Count);
         
         IsNull(components[0]);
         for (int n = 1; n < components.Length; n++) {

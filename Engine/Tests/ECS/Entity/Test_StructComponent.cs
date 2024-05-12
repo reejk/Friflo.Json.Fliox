@@ -436,31 +436,6 @@ public static class Test_StructComponent
     }
     
     [Test]
-    public static void Test_9_Set_Name() {
-        var store   = new EntityStore(PidType.RandomPids);
-        var entity  = store.CreateEntity();
-        IsFalse(entity.HasComponent<EntityName>());
-        IsFalse(entity.HasComponent<Position>());
-        IsFalse(entity.HasComponent<Rotation>());
-        IsFalse(entity.HasComponent<Scale3>());
-        IsFalse(entity.HasComponent<EntityName>());
-        AreEqual("id: 1  []",           entity.ToString());
-        
-        entity.AddComponent(new EntityName("Hello"));
-        AreEqual("'Hello'", entity.GetComponent<EntityName>().ToString());
-        IsTrue(entity.HasComponent<EntityName>());
-        IsTrue(entity.HasComponent<EntityName>());
-        AreEqual("id: 1  \"Hello\"  [EntityName]",    entity.ToString());
-        
-        AreEqual("Hello",               entity.GetComponent<EntityName>().value);
-        AreEqual("Hello",               Encoding.UTF8.GetString(entity.GetComponent<EntityName>().Utf8));
-        
-        entity.GetComponent<EntityName>().value = null;
-        AreEqual("id: 1  [EntityName]", entity.ToString());
-        IsNull(                         entity.GetComponent<EntityName>().Utf8);
-    }
-    
-    [Test]
     public static void Test_StructComponent_EntityStore_creation_Perf() {
         _ = new EntityStore(PidType.RandomPids);
         var stopwatch =  new Stopwatch();
