@@ -15,9 +15,7 @@ namespace Friflo.Engine.ECS;
 /// Rotation encoded as a <a href="https://en.wikipedia.org/wiki/Quaternion">Quaternion</a>
 /// described by the mathematician W.R. Hamilton.
 /// </summary>
-[ComponentKey("rot")]
 [StructLayout(LayoutKind.Explicit)]
-[ComponentSymbol("Rℍ")] // ℍ = Hamilton
 public struct  Rotation : IComponent, IEquatable<Rotation>
 {
     [Browse(Never)]

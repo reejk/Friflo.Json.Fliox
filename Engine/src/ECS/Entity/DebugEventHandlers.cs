@@ -57,8 +57,7 @@ public enum DebugEntityEventKind
 {
     /// <summary>
     /// Mark event handlers added with:<br/>
-    /// <see cref="Entity.OnComponentChanged"/> <br/> <see cref="Entity.OnTagsChanged"/> <br/>
-    /// <see cref="Entity.OnScriptChanged"/>.
+    /// <see cref="Entity.OnComponentChanged"/> <br/> <see cref="Entity.OnTagsChanged"/>.
     /// </summary>
     Event   = 0,
     /// <summary>Mark signal handlers added with  <see cref="Entity.AddSignalHandler{TEvent}"/>.</summary>

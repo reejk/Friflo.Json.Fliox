@@ -1,6 +1,5 @@
 using Friflo.Engine.ECS;
 using NUnit.Framework;
-using Tests.ECS;
 using static NUnit.Framework.Assert;
 
 // ReSharper disable RedundantTypeDeclarationBody
@@ -33,7 +32,6 @@ public static class Test_Entity
         var entity  = store.CreateEntity();
         
         entity.AddComponent<Position>();
-        entity.AddScript(new TestScript1());
         
         AreEqual("",                            entity.Info.ToString());
         AreEqual(entity.Pid,                    entity.Info.Pid);
@@ -46,7 +44,7 @@ public static class Test_Entity
     {
         var store   = new EntityStore(PidType.UsePidAsId);
         var entity1 = store.CreateEntity();
-        entity1.OnScriptChanged         += _ => { };
+        entity1.OnComponentChanged         += _ => { };
 
         AreEqual("event types: 1, handlers: 1", entity1.Info.EventHandlers.ToString());
     }
@@ -89,21 +87,6 @@ public static class Test_Entity
         AreEqual(2, components.Length);
         AreEqual(new Position(), components[0]);
         AreEqual(new Rotation(), components[1]);
-    }
-    
-    [Test]
-    public static void Test_Entity_Scripts_DebugView()
-    {
-        var store   = new EntityStore(PidType.UsePidAsId);
-        var entity  = store.CreateEntity();
-        var script = new TestScript1();
-        entity.AddScript(script);
-        
-        var debugView   = new ScriptsDebugView(entity.Scripts);
-        var scripts     = debugView.Items;
-        
-        AreEqual(1,     scripts .Length);
-        AreSame(script, scripts[0]);
     }
 }
 

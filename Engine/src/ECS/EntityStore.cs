@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using static System.Diagnostics.DebuggerBrowsableState;
 using static Friflo.Engine.ECS.StoreOwnership;
-using static Friflo.Engine.ECS.TreeMembership;
 using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
 
 // ReSharper disable ConvertToAutoProperty
@@ -14,7 +13,7 @@ using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
 namespace Friflo.Engine.ECS;
 
 /// <summary>
-/// An <see cref="EntityStore"/> is a container for <see cref="Entity"/>'s their components, scripts, tags
+/// An <see cref="EntityStore"/> is a container for <see cref="Entity"/>'s their components, tags
 /// and the tree structure.<br/>
 /// See <a href="https://github.com/friflo/Friflo.Json.Fliox/blob/main/Engine/README.md#entitystore">Example.</a>
 /// </summary>
@@ -30,14 +29,10 @@ namespace Friflo.Engine.ECS;
 ///       <see cref="StoreOwnership"/>: <see cref="attached"/> / <see cref="detached"/><br/>
 ///       if <see cref="detached"/> - <see cref="NullReferenceException"/> are thrown by <see cref="Entity"/> properties and methods.
 ///     </item>
-///     <item>
-///       <see cref="TreeMembership"/>: <see cref="treeNode"/> / <see cref="floating"/> node (not part of the <see cref="EntityStore"/> tree graph).<br/>
-///       All children of a <see cref="treeNode"/> are <see cref="treeNode"/>'s themselves.
-///     </item>
 ///     </list>
 ///   </item>
 ///   <item>Manage a tree graph of entities which starts with the <see cref="StoreRoot"/> entity to build up a scene graph.</item>
-///   <item>Store the data of <see cref="IComponent"/>'s and <see cref="Script"/>'s.</item>
+///   <item>Store the data of <see cref="IComponent"/>'s.</item>
 /// </list>
 /// </remarks>
 [CLSCompliant(true)]
@@ -46,9 +41,6 @@ public sealed partial class EntityStore : EntityStoreBase
 #region public properties
     /// <summary> Return the root <see cref="Entity"/> of the store.</summary>
                     public              Entity              StoreRoot       => storeRoot; // null if no graph origin set
-    
-    /// <summary> Return all <see cref="Script"/>'s added to <see cref="Entity"/>'s in the <see cref="EntityStore"/>. </summary>
-                    public ReadOnlySpan<EntityScripts>      EntityScripts   => new (entityScripts, 1, entityScriptCount - 1);
     
     /// <summary> Return all <see cref="Entity"/>'s stored in the <see cref="EntityStore"/>.</summary>
     /// <remarks>Property is mainly used for debugging.<br/>
@@ -70,14 +62,6 @@ public sealed partial class EntityStore : EntityStoreBase
     #endregion
     
 #region events
-    /// <summary>Add / remove an event handler for <see cref="ECS.ScriptChanged"/> events triggered by:<br/>
-    /// <see cref="Entity.AddScript{T}"/>.</summary>
-    public  event   Action<ScriptChanged>           OnScriptAdded           { add => intern.scriptAdded         += value;   remove => intern.scriptAdded    -= value; }
-    
-    /// <summary>Add / remove an event handler for <see cref="ECS.ScriptChanged"/> events triggered by:<br/>
-    /// <see cref="Entity.RemoveScript{T}"/> .</summary>
-    public  event   Action<ScriptChanged>           OnScriptRemoved         { add => intern.scriptRemoved       += value;   remove => intern.scriptRemoved  -= value; }
-    
     /// <summary> Fire events in case an <see cref="Entity"/> changed. </summary>
     public  event   EventHandler<EntitiesChanged>   OnEntitiesChanged       { add => intern.entitiesChanged     += value;   remove => intern.entitiesChanged-= value; }
     
@@ -95,14 +79,7 @@ public sealed partial class EntityStore : EntityStoreBase
     // --- Note: all fields must stay private to limit the scope of mutations
     [Browse(Never)] internal            EntityNode[]            nodes;              //  8   - acts also id2pid
     [Browse(Never)] private             Entity                  storeRoot;          // 16   - origin of the tree graph. null if no origin assigned
-    /// <summary>Contains implicit all entities with one or more <see cref="Script"/>'s to minimize iteration cost for <see cref="Script.Update"/>.</summary>
-    [Browse(Never)] private             EntityScripts[]         entityScripts;      //  8   - invariant: entityScripts[0] = 0
-    /// <summary>Count of entities with one or more <see cref="Script"/>'s</summary>
-    [Browse(Never)] private             int                     entityScriptCount;  //  4   - invariant: > 0  and  <= entityScripts.Length
-    // --- buffers
-    [Browse(Never)] private             int[]                   idBuffer;           //  8
-    [Browse(Never)] private readonly    HashSet<int>            idBufferSet;        //  8
-
+    
                     private             Intern                  intern;             // 88
     /// <summary>Contains state of <see cref="EntityStore"/> not relevant for application development.</summary>
     /// <remarks>Declaring internal state fields in this struct remove noise in debugger.</remarks>
@@ -114,10 +91,6 @@ public sealed partial class EntityStore : EntityStoreBase
 
                         internal            int                     sequenceId;             //  4   - incrementing id used for next new entity
         // --- delegates
-        internal    Action                <ScriptChanged>           scriptAdded;            //  8   - fires event on add script
-        internal    Action                <ScriptChanged>           scriptRemoved;          //  8   - fires event on remove script
-        internal    Dictionary<int, Action<ScriptChanged>>          entityScriptChanged;    //  8   - entity event handlers for add/remove script
-        //
         internal    SignalHandler[]                                 signalHandlerMap;       //  8
         internal    List<SignalHandler>                             signalHandlers;         //  8 
         //
@@ -154,8 +127,6 @@ public sealed partial class EntityStore : EntityStoreBase
         intern              = new Intern(pidType);
         nodes               = Array.Empty<EntityNode>();
         EnsureNodesLength(2);
-        entityScripts       = new EntityScripts[1]; // invariant: entityScripts[0] = 0
-        entityScriptCount   = 1;
         Info                = new EntityStoreInfo(this);
     }
     #endregion

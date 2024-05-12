@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using static Friflo.Engine.ECS.NodeFlags;
 using static Friflo.Engine.ECS.StoreOwnership;
-using static Friflo.Engine.ECS.TreeMembership;
 
 // ReSharper disable UseNullPropagation
 // ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
@@ -20,7 +19,7 @@ public partial class EntityStore
 {
     /// <summary>
     /// Return the <see cref="EntitySchema"/> containing all available
-    /// <see cref="IComponent"/>, <see cref="ITag"/> and <see cref="Script"/> types.
+    /// <see cref="IComponent"/>, <see cref="ITag"/> types.
     /// </summary>
     public static     EntitySchema         GetEntitySchema()=> Static.EntitySchema;
     
@@ -28,7 +27,7 @@ public partial class EntityStore
     /// Create and return a new <see cref="Entity"/> in the entity store.<br/>
     /// See <a href="https://github.com/friflo/Friflo.Json.Fliox/blob/main/Engine/README.md#entity">Example.</a>
     /// </summary>
-    /// <returns>An <see cref="attached"/> and <see cref="floating"/> entity</returns>
+    /// <returns>An <see cref="attached"/> entity</returns>
     public Entity CreateEntity()
     {
         var id = NewId();
@@ -43,7 +42,7 @@ public partial class EntityStore
     /// <summary>
     /// Create and return a new <see cref="Entity"/> with the passed <paramref name="id"/> in the entity store.
     /// </summary>
-    /// <returns>an <see cref="attached"/> and <see cref="floating"/> entity</returns>
+    /// <returns>an <see cref="attached"/> entity</returns>
     public Entity CreateEntity(int id)
     {
         CheckEntityId(id);
@@ -85,18 +84,10 @@ public partial class EntityStore
         CreateEntityInternal(archetype, id);
         var clone       = new Entity(this, id);
 
-        // todo optimize - serialize / deserialize only non blittable components and scripts
+        // todo optimize - serialize / deserialize only non blittable components
         {
-            var scriptTypeByType    = Static.EntitySchema.ScriptTypeByType;
             // CopyComponents() must be used only in case all component types are blittable
             Archetype.CopyComponents(archetype, entity.compIndex, clone.compIndex);
-            // --- clone scripts
-            foreach (var script in entity.Scripts) {
-                var scriptType      = scriptTypeByType[script.GetType()];
-                var scriptClone     = scriptType.CloneScript(script);
-                scriptClone.entity  = clone;
-                AddScript(clone, scriptClone, scriptType);
-            }
         }
         // Send event. See: SEND_EVENT notes
         CreateEntityEvent(clone);
@@ -145,8 +136,6 @@ public partial class EntityStore
         node.compIndex      = Archetype.AddEntity(archetype, id);
         node.archetype      = archetype;
         node.pid            = pid;
-        node.scriptIndex    = EntityUtils.NoScripts;
-        // node.parentId    = Static.NoParentId;     // Is not set. A previous parent node has .parentId already set.
         node.flags          = Created;
         return node.compIndex;
     }

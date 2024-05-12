@@ -146,7 +146,7 @@ public sealed class Archetype
         archIndex       = EntityStoreBase.Static.DefaultArchIndex;
         structHeaps     = Array.Empty<StructHeap>();
         entityIds       = new int [memory.capacity];
-        heapMap         = EntityStoreBase.Static.DefaultHeapMap; // all items are always null
+        heapMap         = new StructHeap[config.maxStructIndex]; // all items are always null
         key             = new ArchetypeKey(this);
         // componentCount   = 0         // has no components
         // componentTypes   = default   // has no components
@@ -242,7 +242,7 @@ public sealed class Archetype
         ResizeShrink(arch);
     }
     
-    /// <remarks>Must be used only on case all <see cref="ComponentTypes"/> are <see cref="ComponentType.IsBlittable"/></remarks>
+    /// <remarks>Must be used only on case all <see cref="ComponentTypes"/> are blittable</remarks>
     internal static void CopyComponents(Archetype arch, int sourceIndex, int targetIndex)
     {
         foreach (var sourceHeap in arch.structHeaps) {

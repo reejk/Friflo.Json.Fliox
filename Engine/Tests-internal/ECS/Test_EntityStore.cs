@@ -1,7 +1,6 @@
 using System;
 using Friflo.Engine.ECS;
 using NUnit.Framework;
-using Tests.ECS;
 using static NUnit.Framework.Assert;
 
 // ReSharper disable UseObjectOrCollectionInitializer
@@ -22,20 +21,6 @@ public static class Test_EntityStore
             EntityStoreBase.AddArchetype(store, archetype);
         });
         AreEqual("invalid archIndex. expect: 2, was: 5", e!.Message);
-    }
-    
-    /// <summary>Cover invariant assertion in <see cref="EntityStore.RemoveScript"/></summary>
-    [Test]
-    public static void Test_EntityStore_RemoveScript() {
-        var store       = new EntityStore(PidType.RandomPids);
-        var entity      = store.CreateEntity();
-        entity.AddScript(new TestScript1());
-        store.SetInternalField("entityScriptCount", 1);
-
-        var e = Throws<InvalidOperationException>(() => {
-            entity.RemoveScript<TestScript1>();    
-        });
-        AreEqual("invariant: entityScriptCount > 0", e!.Message);
     }
     
     /// <summary>Test id assignment in <see cref="EntityStore.EnsureNodesLength"/></summary>

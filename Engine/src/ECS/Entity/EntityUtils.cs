@@ -74,21 +74,10 @@ public static class EntityUtils
     }
     #endregion
     
-#region non generic script - methods
-    public static   Script      GetEntityScript    (Entity entity, ScriptType scriptType) => GetScript       (entity, scriptType.Type);
-    
-    public static   Script      RemoveEntityScript (Entity entity, ScriptType scriptType) => RemoveScriptType(entity, scriptType);
-    
-    public static   Script      AddNewEntityScript (Entity entity, ScriptType scriptType) => AddNewScript    (entity, scriptType);
-    
-    public static   Script      AddEntityScript    (Entity entity, Script script)         => AddScript       (entity, script);
-
-    #endregion
-    
     // ------------------------------------------- internal methods -------------------------------------------
 #region internal - methods
     internal static int ComponentCount (this Entity entity) {
-        return entity.archetype.componentCount + entity.Scripts.Length;
+        return entity.archetype.componentCount;
     }
     
     internal static Exception NotImplemented(int id, string use) {
@@ -112,7 +101,7 @@ public static class EntityUtils
             return sb.ToString();
         }
         var entity = new Entity(archetype.entityStore, id);
-        var typeCount = archetype.componentCount + archetype.tags.Count + entity.Scripts.Length; 
+        var typeCount = archetype.componentCount + archetype.tags.Count; 
         if (typeCount == 0) {
             sb.Append("  []");
         } else {
@@ -126,78 +115,14 @@ public static class EntityUtils
                 sb.Append(tag.Name);
                 sb.Append(", ");
             }
-            var scripts = GetScripts(entity);
-            foreach (var script in scripts) {
-                sb.Append('*');
-                sb.Append(script.GetType().Name);
-                sb.Append(", ");
-            }
             sb.Length -= 2;
             sb.Append(']');
         }
         return sb.ToString();
     }
     
-    // ---------------------------------- Script utils ----------------------------------
-    private  static readonly Script[]                       EmptyScripts        = Array.Empty<Script>();
-    internal const  int                                     NoScripts           = 0;
+    // ---------------------------------- Utils ----------------------------------
     internal static readonly Tags                           Disabled            = Tags.Get<Disabled>();
-    private  static readonly ScriptType[]                   ScriptTypes         = EntityStoreBase.Static.EntitySchema.scripts;
-    private  static readonly Dictionary<Type, ScriptType>   ScriptTypeByType    = EntityStoreBase.Static.EntitySchema.scriptTypeByType;
     
-    internal static Script[] GetScripts(Entity entity) {
-        if (entity.scriptIndex == NoScripts) {
-            return EmptyScripts;
-        }
-        return EntityStore.GetScripts(entity); 
-    }
-    
-    internal static Script GetScript(Entity entity, Type scriptType)
-    {
-        if (entity.scriptIndex == NoScripts) {
-            return null;
-        }
-        return EntityStore.GetScript(entity, scriptType);
-    }
-    
-    internal static Script AddScript(Entity entity, int scriptIndex, Script script)
-    {
-        var scriptType = ScriptTypes[scriptIndex];
-        return AddScriptInternal(entity, script, scriptType);
-    }
-    
-    private static Script AddNewScript(Entity entity, ScriptType scriptType)
-    {
-        var script = scriptType.CreateScript();
-        return AddScriptInternal(entity, script, scriptType);
-    }
-    
-    internal static Script AddScript (Entity entity, Script script) {
-        var scriptType = ScriptTypeByType[script.GetType()];
-        return entity.archetype.entityStore.AddScript(entity, script, scriptType);
-    }
-    
-    private static  Script AddScriptInternal(Entity entity, Script script, ScriptType scriptType)
-    {
-        if (!script.entity.IsNull) {
-            throw new InvalidOperationException($"script already added to an entity. current entity id: {script.entity.Id}");
-        }
-        return entity.archetype.entityStore.AddScript(entity, script, scriptType);
-    }
-    
-    internal static Script RemoveScript(Entity entity, int scriptIndex) {
-        if (entity.scriptIndex == NoScripts) {
-            return null;
-        }
-        var scriptType  = ScriptTypes[scriptIndex];
-        return entity.archetype.entityStore.RemoveScript(entity, scriptType);
-    }
-    
-    private static Script RemoveScriptType(Entity entity, ScriptType scriptType) {
-        if (entity.scriptIndex == NoScripts) {
-            return null;
-        }
-        return entity.archetype.entityStore.RemoveScript(entity, scriptType);
-    }
     #endregion
 }

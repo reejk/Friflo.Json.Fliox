@@ -19,10 +19,4 @@ internal static class SchemaTypeUtils
         var schema = EntityStoreBase.Static.EntitySchema;
         return schema.TagTypeByType[type].TagIndex;
     }
-    
-    internal static int GetScriptIndex(Type type)
-    {
-        var schema = EntityStoreBase.Static.EntitySchema;
-        return schema.ScriptTypeByType[type].ScriptIndex;
-    }
 }

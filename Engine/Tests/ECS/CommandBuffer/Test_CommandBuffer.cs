@@ -213,11 +213,6 @@ public static class Test_CommandBuffer
             ecb.AddTag<TestTag>(1);
         });
         AreEqual("CommandBuffer - buffers returned to store", e!.Message);
-        
-        e = Throws<InvalidOperationException>(() => {
-            ecb.AddScript(1, new TestScript1());
-        });
-        AreEqual("CommandBuffer - buffers returned to store", e!.Message);
     }
     
     [Test]
@@ -344,35 +339,6 @@ public static class Test_CommandBuffer
     }
     
     [Test]
-    public static void Test_CommandBuffer_scripts()
-    {
-        var store   = new EntityStore(PidType.UsePidAsId);
-        var entity  = store.CreateEntity(1);
-        var ecb     = store.GetCommandBuffer();
-        ecb.ReuseBuffer = true;
-        AreEqual(0, ecb.ScriptCommandsCount);
-        
-        var script1 = new TestScript1();
-        ecb.AddScript(entity.Id, script1);
-        AreEqual(1, ecb.ScriptCommandsCount);
-        ecb.Playback();
-        AreEqual(0, ecb.ScriptCommandsCount);
-        AreSame (script1, entity.GetScript<TestScript1>());
-        NotNull (script1.Store);
-        
-        ecb.RemoveScript<TestScript1>(entity.Id);
-        ecb.Playback();
-        IsNull  (entity.GetScript<TestScript1>());
-        IsNull  (script1.Store);
-        
-        ecb.AddScript(entity.Id, new TestScript2());
-        ecb.RemoveScript<TestScript2>(entity.Id);
-        AreEqual(2, ecb.ScriptCommandsCount);
-        ecb.Playback();
-        IsNull  (entity.GetScript<TestScript2>());
-    }
-    
-    [Test]
     public static void Test_CommandBuffer_Playback_early_out()
     {
         var store   = new EntityStore(PidType.UsePidAsId);
@@ -402,10 +368,6 @@ public static class Test_CommandBuffer
         ecb.Playback();
         IsTrue(entity.Tags.Has<TestTag>());
         
-        ecb.AddScript(entity.Id, new TestScript1());
-        ecb.Playback();
-        NotNull(entity.GetScript<TestScript1>());
-        
         int  newEntity = ecb.CreateEntity();
         ecb.Playback();
         AreEqual(3, store.Count);
@@ -427,18 +389,15 @@ public static class Test_CommandBuffer
         
         ecb.AddComponent(entity.Id, new Position());
         ecb.AddTag<TestTag>(entity.Id);
-        ecb.AddScript(entity.Id, new TestScript1());
         ecb.CreateEntity();
         
         AreEqual(1, ecb.ComponentCommandsCount);
         AreEqual(1, ecb.TagCommandsCount);
-        AreEqual(1, ecb.ScriptCommandsCount);
         AreEqual(1, ecb.EntityCommandsCount);
         
         ecb.Clear();
         AreEqual(0, ecb.ComponentCommandsCount);
         AreEqual(0, ecb.TagCommandsCount);
-        AreEqual(0, ecb.ScriptCommandsCount);
         AreEqual(0, ecb.EntityCommandsCount);
     }
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Numerics;
 using Friflo.Engine.ECS;
-using static NUnit.Framework.Assert;
 
 #pragma warning disable CS0649 // Field '...' is never assigned to, and will always have its default value
 
@@ -12,8 +11,6 @@ namespace Tests.ECS {
 
 // ------------------------------------------------ components
 [CodeCoverageTest]
-[ComponentKey("my1")]
-[ComponentSymbol("M1")]
 public struct MyComponent1 : IComponent {
     public          int     a;
     public override string  ToString() => a.ToString();
@@ -25,43 +22,24 @@ internal class CycleClass  { internal CycleClass    cycle;  }
 internal class CycleClass1 { internal CycleClass2   cycle2; }
 internal class CycleClass2 { internal CycleClass1   cycle1; }
 
-[ComponentKey("my2")]
-[ComponentSymbol("M2 too long")]
 public struct MyComponent2 : IComponent { public int b; }
-
-[ComponentKey("my3")]
-[ComponentSymbol(" M3", "invalid")]
 public struct MyComponent3 : IComponent { public int b; }
-
-[ComponentKey("my4")]
-[ComponentSymbol("", "invalid1,invalid2,invalid3")]
 public struct MyComponent4 : IComponent { public int b; }
-
-[ComponentKey("my5")]
 public struct MyComponent5 : IComponent { public int b; }
-
-[ComponentKey("my6")]
 public struct MyComponent6 : IComponent { public int b; }
-
-[ComponentKey("my7")]
 public struct MyComponent7 : IComponent { public int b; }
 
 public struct NonBlittableArray         : IComponent { internal int[]                   array;  }
 public struct NonBlittableList          : IComponent { internal List<int>               list;   }
 public struct NonBlittableDictionary    : IComponent { internal Dictionary<int, int>    map;    }
-public struct NonBlittableCycle         : IComponent { internal CycleClass              cycle;  }
-public struct NonBlittableCycle2        : IComponent { internal CycleClass1             cycle1; }
 
 public struct BlittableDatetime         : IComponent { public DateTime      dateTime;    }
 public struct BlittableGuid             : IComponent { public Guid          guid;        }
 public struct BlittableBigInteger       : IComponent { public BigInteger    bigInteger;  }
-// public struct BlittableUri           : IComponent { public Uri           uri;         } todo requires fix in Fliox.Mapper
 
-[ComponentKey(null)]
 public struct NonSerializedComponent    : IComponent { public int           value;  }
 
 [CodeCoverageTest]
-[ComponentKey("byte")]
 public struct ByteComponent     : IComponent { public byte  b; }
 public struct ShortComponent    : IComponent { public short b; }
 public struct IntComponent      : IComponent { public int   b; }
@@ -128,11 +106,9 @@ struct MyInvalidComponent : IComponent { public int b; }
 
 
 // ------------------------------------------------ tags
-[TagName("test-tag")]
 public struct TestTag  : ITag { }
 
 [CodeCoverageTest]
-[TagName("test-tag2")]
 public struct TestTag2 : ITag { }
 
 // Intentionally without [Tag("test-tag3")] attribute for testing
@@ -142,37 +118,9 @@ public struct TestTag4 : ITag { }
 
 public struct TestTag5 : ITag { }
 
-
-// ------------------------------------------------ scripts
-[CodeCoverageTest]
-[ComponentKey("script1")]
-public class TestScript1    : Script { public   int     val1; }
-
-[ComponentKey("script2")]
-class TestScript2           : Script { public   int     val2; }
-
-[ComponentKey("script3")]
-class TestScript3           : Script { public   int     val3; }
-
-class NonBlittableScript    : Script { internal int[]   array; }
-
-[ComponentKey("test")]
-class TestComponent : Script
-{
-    private int                      health;     // is serialized
-    
-    public override  void Update() {
-        health = 4;
-        Entity.GetComponent<MyComponent1>().a = 5 + health;
-        Entity.GetComponent<Position>().x += 1;
-        AreEqual(2f, Entity.GetComponent<Position>().x);
-    }
-}
-
 /// <summary> Used only to cover <see cref="SchemaTypeUtils.GetStructIndex"/>
 /// Deprecated methods
 /// TagType.NewTagIndex()
-/// ScriptType.NewScriptIndex()
 /// </summary> 
 [AttributeUsage(AttributeTargets.Struct | AttributeTargets.Class)]
 public sealed class CodeCoverageTestAttribute : Attribute { }

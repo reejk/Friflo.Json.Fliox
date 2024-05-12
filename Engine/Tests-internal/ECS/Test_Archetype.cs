@@ -25,9 +25,6 @@ public static class Test_Archetype
     [Test]
     public static void Test_Archetype_ComponentAttribute()
     {
-        _ = new ComponentKeyAttribute("abc");
-        _ = new TagNameAttribute("foo");
-        
         var type = typeof(Test_Archetype);
         var handle = type.Handle();
         var expect = type.TypeHandle.Value.ToInt64();

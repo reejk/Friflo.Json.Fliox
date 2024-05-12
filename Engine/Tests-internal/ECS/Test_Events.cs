@@ -17,14 +17,12 @@ public static class Test_Events
         entity1.OnComponentChanged     += _ => { Fail("unexpected"); };
         entity1.OnComponentChanged     += _ => { Fail("unexpected"); };
         entity1.OnTagsChanged          += _ => { Fail("unexpected"); };
-        entity1.OnScriptChanged        += _ => { Fail("unexpected"); };
         entity1.AddSignalHandler<MyEvent>(_ => { Fail("unexpected"); });
         
         var entity2  = store.CreateEntity(2);
         var eventCount = 0;
         entity2.OnComponentChanged     += _ => { eventCount++; };
         entity2.OnTagsChanged          += _ => { eventCount++; };
-        entity2.OnScriptChanged        += _ => { eventCount++; };
         entity2.AddSignalHandler<MyEvent>(_ => { eventCount++; });
         
         entity1.DeleteEntity();
@@ -32,10 +30,9 @@ public static class Test_Events
         
         entity2.AddTag<TestTag>();
         entity2.AddComponent<Position>();
-        entity2.AddScript(new TestScript1());
         entity2.EmitSignal(new MyEvent());
         entity2.DeleteEntity();
-        AreEqual(4, eventCount);
+        AreEqual(3, eventCount);
         
         entity1.EmitSignal(new MyEvent());
         EntityStoreBase.AssertEventDelegatesNull(store);
