@@ -179,12 +179,10 @@ public static class Test_ScriptSystems
         root.AddScript(new SystemSet { argCount = 1 });
         
         var child = store.CreateEntity();
-        root.AddChild(child);
         child.AddComponent(new Position(2, 0, 0));
         for (int n = 3; n <= 1000; n++) {
             child = child.Archetype.CreateEntity();
             child.GetComponent<Position>() = new Position(n, 0, 0);
-            root.AddChild(child);
         }
         CreateSystems(store);
         int count = 10; // 10_000_000 ~ #PC: 1575 ms
@@ -199,14 +197,12 @@ public static class Test_ScriptSystems
         root.AddScript(new SystemSet { argCount = 2 });
         
         var child = store.CreateEntity();
-        root.AddChild(child);
         child.AddComponent(new Position(2, 0, 0));
         child.AddComponent(new Rotation(2, 0, 0, 0));
         for (int n = 3; n <= 1000; n++) {
             child = child.Archetype.CreateEntity();
             child.GetComponent<Position>()      = new Position(n, 0, 0);
             child.GetComponent<Rotation>()      = new Rotation(n, 0, 0, 0);
-            root.AddChild(child);
         }
         CreateSystems(store);
         int count = 10; // 10_000_000 ~ #PC: 1387 ms
@@ -221,7 +217,6 @@ public static class Test_ScriptSystems
         root.AddScript(new SystemSet { argCount = 3 });
         
         var child = store.CreateEntity();
-        root.AddChild(child);
         child.AddComponent(new Position(2, 0, 0));
         child.AddComponent(new Rotation(2, 0, 0, 0));
         child.AddComponent(new EntityName("child"));
@@ -230,7 +225,6 @@ public static class Test_ScriptSystems
             child.GetComponent<Position>()      = new Position(n, 0, 0);
             child.GetComponent<Rotation>()      = new Rotation(n, 0, 0, 0);
             child.GetComponent<EntityName>().value    = "child";
-            root.AddChild(child);
         }
         CreateSystems(store);
         int count = 10; // 10_000_000 ~ #PC: 1500 ms
@@ -245,7 +239,6 @@ public static class Test_ScriptSystems
         root.AddScript(new SystemSet { argCount = 4 });
         
         var child = store.CreateEntity();
-        root.AddChild(child);
         child.AddComponent(new Position(2, 0, 0));
         child.AddComponent(new Rotation(2, 0, 0, 0));
         child.AddComponent(new Scale3  (2, 0, 0));
@@ -256,7 +249,6 @@ public static class Test_ScriptSystems
             child.GetComponent<Rotation>()      = new Rotation(n, 0, 0, 0);
             child.GetComponent<Scale3>()        = new Scale3  (n, 0, 0);
             child.GetComponent<EntityName>().value    = "child";
-            root.AddChild(child);
         }
         CreateSystems(store);
         int count = 10; // 10_000_000 ~ #PC: 1757 ms
@@ -271,7 +263,6 @@ public static class Test_ScriptSystems
         root.AddScript(new SystemSet { argCount = 5 });
         
         var child = store.CreateEntity();
-        root.AddChild(child);
         child.AddComponent(new Position(2, 0, 0));
         child.AddComponent(new Rotation(2, 0, 0, 0));
         child.AddComponent(new Scale3  (2, 0, 0));
@@ -283,7 +274,6 @@ public static class Test_ScriptSystems
             child.GetComponent<Rotation>()      = new Rotation(n, 0, 0, 0);
             child.GetComponent<Scale3>()        = new Scale3  (n, 0, 0);
             child.GetComponent<EntityName>().value    = "child";
-            root.AddChild(child);
         }
         CreateSystems(store);
         int count = 10; // 10_000_000 ~ #PC: 1847 ms
@@ -300,7 +290,6 @@ public static class Test_ScriptSystems
         root.AddComponent<Transform>();
         root.AddComponent<Scale3>();
         root.AddComponent<MyComponent1>();
-        store.SetStoreRoot(root);
         return store;
     }
     

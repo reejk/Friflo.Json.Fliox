@@ -103,7 +103,6 @@ public abstract partial class EntityStoreBase
     // use nested class to minimize noise in debugger
     internal static class Static
     {
-        internal static readonly    int[]           EmptyChildIds   = null;
         internal static readonly    EntitySchema    EntitySchema    = SchemaUtils.RegisterSchemaTypes();
         /// <summary>All items in the <see cref="DefaultHeapMap"/> are always null</summary>
         internal static readonly    StructHeap[]    DefaultHeapMap  = new StructHeap[EntitySchema.maxStructIndex];
@@ -113,12 +112,6 @@ public abstract partial class EntityStoreBase
         
         /// <summary>to avoid accidental entity access by id using (default value) 0 </summary>
         internal const              int             MinNodeId               =  1;
-        /// <summary>
-        /// An <see cref="EntityNode"/> with <see cref="EntityNode.parentId"/> == <see cref="NoParentId"/>
-        /// is declared as <see cref="TreeMembership.floating"/>.
-        /// </summary>
-        internal const              int             NoParentId              =  0;
-        internal const              int             StoreRootParentId       = -1;
     }
     #endregion
     
@@ -158,15 +151,6 @@ public abstract partial class EntityStoreBase
         
     internal static Exception   IdAlreadyInUseException(int id, string parameterName) {
         return ArgumentException($"id already in use in EntityStore. id: {id}", parameterName);
-    }
-    
-    internal static Exception   PidOutOfRangeException(long pid, string parameterName) {
-        var msg = $"pid must be in range [1, 2147483647] when using {nameof(PidType)}.{nameof(PidType.UsePidAsId)}. was: {pid}";
-        return ArgumentException(msg, parameterName);
-    }
-    
-    internal static Exception   AddEntityAsChildToItselfException(int id) {
-        return new InvalidOperationException($"Cannot add entity to itself as a child. id: {id}");
     }
     #endregion
 }

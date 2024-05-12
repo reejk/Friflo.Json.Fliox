@@ -32,9 +32,6 @@ public sealed class CommandBuffer
     /// <summary> Return the number of recorded script commands. </summary>
     [Browse(Never)] public  int             ScriptCommandsCount     => intern.scriptCommandsCount;
     
-    /// <summary> Return the number of recorded add / remove child commands. </summary>
-    [Browse(Never)] public  int             ChildCommandsCount      => intern.childCommandsCount;
-    
     /// <summary> Return the number of recorded entity commands. </summary>
     [Browse(Never)] public  int             EntityCommandsCount     => intern.entityCommandCount;
     
@@ -51,7 +48,6 @@ public sealed class CommandBuffer
 #region internal debugging properties
     internal ReadOnlySpan<TagCommand>       TagCommands             => new (intern.tagCommands,    0, intern.tagCommandsCount);
     internal ReadOnlySpan<ScriptCommand>    ScriptCommands          => new (intern.scriptCommands, 0, intern.scriptCommandsCount);
-    internal ReadOnlySpan<ChildCommand>     ChildCommands           => new (intern.childCommands,  0, intern.childCommandsCount);
     internal ReadOnlySpan<EntityCommand>    EntityCommands          => new (intern.entityCommands, 0, intern.entityCommandCount);
     internal ComponentCommands[]            ComponentCommands       => GetComponentCommands();
     #endregion
@@ -71,9 +67,6 @@ public sealed class CommandBuffer
         //
         internal            ScriptCommand[]     scriptCommands;
         internal            int                 scriptCommandsCount;
-        //
-        internal            ChildCommand[]      childCommands;
-        internal            int                 childCommandsCount;
         //
         internal            EntityCommand[]     entityCommands;
         internal            int                 entityCommandCount;
@@ -100,7 +93,6 @@ public sealed class CommandBuffer
             changedComponentTypes   = default;
             tagCommandsCount        = 0;
             scriptCommandsCount     = 0;
-            childCommandsCount      = 0;
             entityCommandCount      = 0;
         }
     }
@@ -120,7 +112,6 @@ public sealed class CommandBuffer
         intern = new Intern(store, commands) {
             tagCommands     = Array.Empty<TagCommand>(),
             scriptCommands  = Array.Empty<ScriptCommand>(),
-            childCommands   = Array.Empty<ChildCommand>(),
             entityCommands  = Array.Empty<EntityCommand>()
         };
     }
@@ -169,9 +160,6 @@ public sealed class CommandBuffer
             }
             if (intern.scriptCommandsCount > 0) {
                 ExecuteScriptCommands();
-            }
-            if (intern.childCommandsCount > 0) {
-                ExecuteChildCommands();
             }
         }
         finally {
@@ -268,25 +256,6 @@ public sealed class CommandBuffer
                     break;
                 case ScriptChangedAction.Remove:
                     EntityUtils.RemoveScript(entity, command.scriptIndex);
-                    break;
-            }
-        }
-    }
-    
-    private void ExecuteChildCommands()
-    {
-        var commands    = intern.childCommands.AsSpan(0, intern.childCommandsCount);
-        var store       = intern.store;
-
-        foreach (var command in commands)
-        {
-            switch (command.action)
-            {
-                case ChildEntitiesChangedAction.Add:
-                    store.AddChild(command.parentId, command.childId);
-                    break;
-                case ChildEntitiesChangedAction.Remove:
-                    store.RemoveChild(command.parentId, command.childId);
                     break;
             }
         }
@@ -526,41 +495,6 @@ public sealed class CommandBuffer
         command.action      = action;
         command.entityId    = entityId;
         command.script      = script;
-    }
-    #endregion
-    
-#region child entity
-    /// <summary>
-    /// Add the entity with the given <paramref name="childId"/> as a child to the entity with the passed <paramref name="parentId"/>.
-    /// </summary>
-    public void AddChild(int parentId, int childId)
-    {
-        ChangeChild (parentId, childId, ChildEntitiesChangedAction.Add);
-    }
-        
-    /// <summary>
-    /// Remove the child entity with given <paramref name="childId"/> from the parent entity with the the passed <paramref name="parentId"/>.
-    /// </summary>
-    public void RemoveChild(int parentId, int childId)
-    {
-        ChangeChild (parentId, childId, ChildEntitiesChangedAction.Remove);
-    }
-    
-    private void ChangeChild(int parentId, int childId, ChildEntitiesChangedAction action)
-    {
-        if (intern.returnedBuffer) {
-            throw CannotReuseCommandBuffer();
-        }
-        var count =  intern.childCommandsCount;
-        if (count == intern.childCommands.Length) {
-            ArrayUtils.Resize(ref intern.childCommands, Math.Max(4, 2 * count));
-        }
-        intern.hasCommands          = true;
-        intern.childCommandsCount   = count + 1;
-        ref var command     = ref intern.childCommands[count];
-        command.parentId    = parentId;
-        command.childId     = childId;
-        command.action      = action;
     }
     #endregion
 

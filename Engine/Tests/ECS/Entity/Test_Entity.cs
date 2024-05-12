@@ -266,45 +266,6 @@ public static class Test_Entity
     }
     
     [Test]
-    public static void Test_Entity_EnableTree()
-    {
-        var count       = 10;    // 1_000_000 ~ #PC: 8296 ms
-        var entityCount = 100;
-        var store       = new EntityStore(PidType.UsePidAsId);
-        var root        = store.CreateEntity();
-        var arch2       = store.GetArchetype(ComponentTypes.Get<Position, Rotation>());
-        var arch3       = store.GetArchetype(ComponentTypes.Get<Position, Rotation>(), Tags.Get<Disabled>());
-        
-        for (int n = 1; n < entityCount; n++) {
-            root.AddChild(arch2.CreateEntity());
-        }
-        IsTrue (root.Enabled);
-        
-        var sw = new Stopwatch();
-        sw.Start();
-        long start = 0;
-        for (int i = 0; i < count; i++)
-        {
-            root.EnableTree();
-            root.DisableTree();
-            if (i == 0) start = Mem.GetAllocatedBytes();
-        }
-        Mem.AssertNoAlloc(start);
-        Console.WriteLine($"Disable / Enable - duration: {sw.ElapsedMilliseconds} ms");
-        
-        var query       = store.Query();
-        AreEqual(0,                 query.Count);
-        
-        var disabled    = store.Query().WithDisabled();
-        AreEqual(entityCount,       disabled.Count);
-        
-        AreEqual(entityCount,       store.Count);
-        AreEqual(0,                 arch2.Count);
-        AreEqual(entityCount - 1,   arch3.Count);
-        IsFalse (root.Enabled);
-    }
-    
-    [Test]
     public static void Test_Entity_create_delete_Entity_events()
     {
         var store   = new EntityStore(PidType.UsePidAsId);

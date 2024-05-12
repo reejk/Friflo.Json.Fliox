@@ -199,29 +199,5 @@ public static class EntityUtils
         }
         return entity.archetype.entityStore.RemoveScript(entity, scriptType);
     }
-    
-    internal static void AddTreeTags(Entity entity, in Tags tags)
-    {
-        var list = entity.store.GetEntityList();
-        list.Clear();
-        list.AddTree(entity);
-        try {
-            list.ApplyAddTags(tags);
-        } finally {
-            entity.store.ReturnEntityList(list);
-        }
-    }
-    
-    internal static void RemoveTreeTags(Entity entity, in Tags tags)
-    {
-        var list = entity.store.GetEntityList();
-        list.Clear();
-        list.AddTree(entity);
-        try {
-            list.ApplyRemoveTags(tags);
-        } finally {
-            entity.store.ReturnEntityList(list);
-        }
-    }
     #endregion
 }

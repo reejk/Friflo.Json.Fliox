@@ -1,8 +1,6 @@
 ﻿using System;
-using System.IO;
 using System.Numerics;
 using Friflo.Engine.ECS;
-using Friflo.Engine.ECS.Serialize;
 using NUnit.Framework;
 
 #if !UNITY_5_3_OR_NEWER
@@ -133,21 +131,6 @@ public static void AddScript()
 }
 
 [Test]
-public static void AddChildEntities()
-{
-    var store   = new EntityStore();
-    var root    = store.CreateEntity();
-    var child1  = store.CreateEntity();
-    var child2  = store.CreateEntity();
-    
-    // add child entities
-    root.AddChild(child1);
-    root.AddChild(child2);
-    
-    Console.WriteLine($"child entities: {root.ChildEntities}"); // > child entities: Count: 2
-}
-
-[Test]
 public static void AddEventHandlers()
 {
     var store   = new EntityStore();
@@ -155,12 +138,10 @@ public static void AddEventHandlers()
     entity.OnComponentChanged     += ev => { Console.WriteLine(ev); }; // > entity: 1 - event > Add Component: [MyComponent]
     entity.OnTagsChanged          += ev => { Console.WriteLine(ev); }; // > entity: 1 - event > Add Tags: [#MyTag1]
     entity.OnScriptChanged        += ev => { Console.WriteLine(ev); }; // > entity: 1 - event > Add Script: [*MyScript]
-    entity.OnChildEntitiesChanged += ev => { Console.WriteLine(ev); }; // > entity: 1 - event > Add Child[0] = 2
 
     entity.AddComponent(new MyComponent());
     entity.AddTag<MyTag1>();
     entity.AddScript(new MyScript());
-    entity.AddChild(store.CreateEntity());
 }
 
 public readonly struct MySignal { }
@@ -331,31 +312,6 @@ public static void BulkBatch()
     foreach (var entity in store.Entities) {
         batch.ApplyTo(entity);
     }
-}
-
-[Test]
-public static void EntityList()
-{
-    var store   = new EntityStore();
-    var root    = store.CreateEntity();
-    for (int n = 0; n < 10; n++) {
-        var child = store.CreateEntity();
-        root.AddChild(child);
-        // Add two children to each child
-        child.AddChild(store.CreateEntity());
-        child.AddChild(store.CreateEntity());
-    }
-    var list = new EntityList(store);
-    // Add root and all its children to the list
-    list.AddTree(root);
-    Console.WriteLine($"list - {list}");                // > list - Count: 31
-    
-    var batch = new EntityBatch();
-    batch.Add(new Position());
-    list.ApplyBatch(batch);
-    
-    var query = store.Query<Position>();
-    Console.WriteLine(query);                           // > Query: [Position]  Count: 31
 }
 
 [Test]

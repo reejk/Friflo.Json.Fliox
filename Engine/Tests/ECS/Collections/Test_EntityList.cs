@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Friflo.Engine.ECS;
 using NUnit.Framework;
-using Tests.Utils;
 using static NUnit.Framework.Assert;
 
 // ReSharper disable InconsistentNaming
@@ -23,50 +21,6 @@ public static class Test_EntityList
         AreSame(store, list.EntityStore);
         list.Add(entity);
         AreEqual(1, list.Count);
-    }
-    
-    [Test]
-    public static void Test_EntityList_AddTreeEntities()
-    {
-        var count       = 10;   // 1_000_000 ~ #PC: 7715 ms
-        var entityCount = 100;
-        
-        var store   = new EntityStore(PidType.RandomPids);
-        var root    = store.CreateEntity();
-        var arch2   = store.GetArchetype(ComponentTypes.Get<Position, Rotation>());
-        var arch3   = store.GetArchetype(ComponentTypes.Get<Position, Rotation>(), Tags.Get<Disabled>());
-        
-        for (int n = 1; n < entityCount; n++) {
-            root.AddChild(arch2.CreateEntity());
-        }
-        var list = new EntityList(store);
-        
-        var sw = new Stopwatch();
-        sw.Start();
-        long start = 0; 
-        var tags = Tags.Get<Disabled>();
-        for (int n = 0; n < count; n++) {
-            list.Clear();
-            list.AddTree(root);
-            list.ApplyRemoveTags(tags);
-            list.ApplyAddTags(tags);
-            if (n == 0) start = Mem.GetAllocatedBytes();
-        }
-        Mem.AssertNoAlloc(start);
-        Console.WriteLine($"AddTreeEntities - duration: {sw.ElapsedMilliseconds} ms");
-        AreEqual(entityCount, list.Count);
-        AreEqual(entityCount, list.Ids.Length);
-        
-        var query = store.Query();
-        AreEqual(0,                 query.Count);
-        
-        var disabled = store.Query().WithDisabled();
-        AreEqual(entityCount,       disabled.Count);
-        
-        AreEqual(entityCount,       store.Count);
-        AreEqual(0,                 arch2.Count);
-        AreEqual(entityCount - 1,   arch3.Count);
-        IsFalse (root.Enabled);
     }
     
     [Test]
@@ -161,11 +115,6 @@ public static class Test_EntityList
         var list    = new EntityList(store2);
         
         var e = Throws<ArgumentException>(() => {
-            list.AddTree(entity1);
-        });
-        AreEqual("entity is owned by a different store (Parameter 'entity')", e!.Message);
-        
-        e = Throws<ArgumentException>(() => {
             list.Add(entity1);
         });
         AreEqual("entity is owned by a different store (Parameter 'entity')", e!.Message);

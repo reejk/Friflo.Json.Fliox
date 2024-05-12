@@ -4,7 +4,6 @@
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using Friflo.Engine.ECS.Serialize;
 using static Friflo.Engine.ECS.NodeFlags;
 using static Friflo.Engine.ECS.StoreOwnership;
 using static Friflo.Engine.ECS.TreeMembership;
@@ -104,14 +103,6 @@ public partial class EntityStore
         return clone;
     }
     
-    [ExcludeFromCodeCoverage]
-    private static void AssertNoError(string error) {
-        if (error == null) {
-            return;
-        }
-        throw new InvalidOperationException($"unexpected error: {error}");
-    }
-    
     [Conditional("DEBUG")] [ExcludeFromCodeCoverage] // assert invariant
     private void AssertIdInNodes(int id) {
         if (id < nodes.Length) {
@@ -156,22 +147,8 @@ public partial class EntityStore
         node.pid            = pid;
         node.scriptIndex    = EntityUtils.NoScripts;
         // node.parentId    = Static.NoParentId;     // Is not set. A previous parent node has .parentId already set.
-        node.childIds       = Static.EmptyChildIds;
         node.flags          = Created;
         return node.compIndex;
-    }
-    
-    /// <summary>
-    /// Set the passed <paramref name="entity"/> as the <see cref="StoreRoot"/> entity.
-    /// </summary>
-    public void SetStoreRoot(Entity entity) {
-        if (entity.IsNull) {
-            throw new ArgumentNullException(nameof(entity));
-        }
-        if (this != entity.archetype.store) {
-            throw InvalidStoreException(nameof(entity));
-        }
-        SetStoreRootEntity(entity);
     }
     
     private QueryEntities GetEntities() {

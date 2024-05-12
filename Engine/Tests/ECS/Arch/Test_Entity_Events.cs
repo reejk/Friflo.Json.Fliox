@@ -119,35 +119,6 @@ public static class Test_Entity_Events
         AreEqual(1, entity1EventCount);
     }
     
-    [Test]
-    public static void Test_Entity_Events_OnChildEntitiesChanged()
-    {
-        var store       = new EntityStore(PidType.RandomPids);
-        var entity1     = store.CreateEntity(1);
-        var entity2     = store.CreateEntity(2);
-        var child10     = store.CreateEntity(10);
-        var child11     = store.CreateEntity(11);
-        var child12     = store.CreateEntity(12);
-
-        var entity1EventCount = 0;
-        Action<ChildEntitiesChanged> onChildEntitiesChanged = (args)    => {
-            switch (entity1EventCount++) {
-                case 0:     AreEqual("entity: 1 - event > Add Child[0] = 10", args.ToString()); break;
-                default:    Fail("unexpected"); break;
-            }
-        };
-        entity1.OnChildEntitiesChanged += onChildEntitiesChanged; 
-
-        entity1.AddChild(child10);
-        entity2.AddChild(child11);
-        
-        entity1.OnChildEntitiesChanged -= onChildEntitiesChanged; 
-        
-        entity1.AddChild(child12);
-        
-        AreEqual(1, entity1EventCount);
-    }
-    
     /// <summary>
     /// Note: Add signal handlers with different event types in specified order<b/>
     /// to cover null items in <see cref="EntityStore.Intern.signalHandlers"/>
@@ -231,7 +202,6 @@ public static class Test_Entity_Events
         entity.OnComponentChanged     += _ => { };
         entity.OnTagsChanged          += _ => { };
         entity.OnScriptChanged        += _ => { };
-        entity.OnChildEntitiesChanged += _ => { };
         entity.AddSignalHandler<MyEvent1>(_ => { });
         
         var handlers = entity.DebugEventHandlers;
@@ -243,7 +213,6 @@ public static class Test_Entity_Events
         AreEqual(typeof(ComponentChanged),      handlers[0].Type);
         AreEqual(typeof(TagsChanged),           handlers[1].Type);
         AreEqual(typeof(ScriptChanged),         handlers[2].Type);
-        AreEqual(typeof(ChildEntitiesChanged),  handlers[3].Type);
         AreEqual(typeof(MyEvent1),               handlers[4].Type);
         
         AreEqual("ComponentChanged - Count: 2",       handlers[0].ToString());
