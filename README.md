@@ -1,620 +1,984 @@
+[![JSON Fliox](https://raw.githubusercontent.com/reejk/Friflo.Json.Fliox/main/docs/images/Json-Fliox.svg)](https://github.com/reejk/Friflo.Json.Fliox/blob/main/README.md)   ![splash](https://raw.githubusercontent.com/reejk/Friflo.Json.Fliox/main/docs/images/paint-splatter.svg)
+
+[![nuget](https://buildstats.info/nuget/Friflo.Just.ECS)](https://www.nuget.org/packages/Friflo.Just.ECS)
+[![nuget](https://img.shields.io/badge/published-2024-blue.svg)](https://www.nuget.org/packages/Friflo.Just.ECS/1.0.0)
+[![nuget](https://img.shields.io/badge/license-LGPL-blue.svg)](https://github.com/friflo/Friflo.Json.Fliox/blob/main/LICENSE)
+[![Coverage](https://codecov.io/gh/friflo/Friflo.Json.Fliox/branch/main/graph/badge.svg)](https://app.codecov.io/gh/friflo/Friflo.Json.Fliox/tree/main/Engine%2Fsrc%2FECS)
+[![CI-Engine](https://github.com/friflo/Friflo.Json.Fliox/workflows/CI/badge.svg)](https://github.com/friflo/Friflo.Json.Fliox/actions/workflows/engine.yml)
+[![nuget](https://img.shields.io/badge/docs-C%23%20API-blue.svg)](https://github.com/friflo/Friflo.Engine-docs/blob/main/README.md)
+[![stars](https://img.shields.io/github/stars/friflo/Friflo.Json.Fliox.svg)](https://github.com/friflo/Friflo.Json.Fliox)
 
 
-# [![JSON Fliox](docs/images/Json-Fliox.svg)](https://github.com/friflo/Friflo.Json.Fliox)    **JSON Fliox** ![SPLASH](docs/images/paint-splatter.svg)
+# Friflo.Just.ECS
 
-[![nuget](https://buildstats.info/nuget/Friflo.Json.Fliox.Hub)](https://www.nuget.org/packages/Friflo.Json.Fliox.Hub) 
-[![nuget](https://img.shields.io/badge/license-LGPL-blue.svg)](https://github.com/friflo/Friflo.Json.Fliox/blob/main/LICENSE) 
-[![CI](https://github.com/friflo/Friflo.Json.Fliox/workflows/CI/badge.svg)](https://github.com/friflo/Friflo.Json.Fliox/actions/workflows/dotnet.yml) 
-[![CD](https://github.com/friflo/Friflo.Json.Fliox/workflows/CD/badge.svg)](https://github.com/friflo/Friflo.Json.Fliox/actions/workflows/nuget.yml) 
+Currently fastest 🔥 ECS implementation in C# / .NET - using **Ecs.CSharp.Benchmark** as reference.  
+See benchmark results - Mac Mini M2 - at the bottom of this page.  
+This ECS is an Archetype / AoS based Entity Component System. See: [ECS - Wikipedia](https://en.wikipedia.org/wiki/Entity_component_system).   
 
-![new](docs/images/new.svg) 2024-03-26 · Switched project to more permissive license LGPL v3.0. Before AGPL v3.0.
-See [#41](https://github.com/friflo/Friflo.Json.Fliox/discussions/41).
+The library implements all features a typical ECS provides.
 
+*Unique library features*
+- Build up a hierarchy of entities with parent / child relationship - optional.
+- Subscribe to events/signals for specific entities - *Unique feature*.  
+  Subscribe to events in a world - *Supported by most ECS projects*.
+- JSON Serialization without any boilerplate.
+- Enable exploring entities, query results, parent/child relationships, components & tags in the debugger.  
+  See screenshot at [Examples](#examples).
+- SIMD Support - optional. Multi thread capable and remainder loop free.
+- High-performance and compact ECS implementation - Friflo.Just.ECS.dll size 220 kb
+- Does not use unsafe code. See [Library](#library).
 
-![new](docs/images/new.svg) 2024-02-19 · New features in [**Friflo.Engine.ECS - v.1.17.0**](Engine/README.md)  
-Added new features focusing on performance:
-- Add support for multi threaded query (system) execution.
-- Added command buffers typically used in multi threaded queries.
-- Support entity creation as batch and bulk operation.
-- Support entity changes - add/remove components and tags - as batch and bulk operation.
-- Add SIMD support in multi threaded queries. Execute SIMD operations without a scalar remainder loop.
-
-
-
-<br/>
-
-### **JSON Fliox**
-
-A client / server **ORM** for **.NET** for **SQL & NoSQL** databases with focus on Web apps and performance.  
-Database access is realized by creating a single class to query, create, update or delete table / container records.  
-
-This class - a **`FlioxClient`** - provide type safety and support validation, batching, transactions and messaging.  
-A **`FlioxHub`** can be used to serve hosted databases via HTTP using **ASP.NET Core** or an **HttpListener**.
-
-As Fliox is an [ORM](https://en.wikipedia.org/wiki/Object-relational_mapping)![](docs/images/ext.svg) it has similarities to projects like
-[Entity Framework Core](https://en.wikipedia.org/wiki/Entity_Framework)![](docs/images/ext.svg),
-[Ruby on Rails](https://en.wikipedia.org/wiki/Ruby_on_Rails)![](docs/images/ext.svg),
-[Django](https://en.wikipedia.org/wiki/Django_(web_framework))![](docs/images/ext.svg) or
-[Hibernate](https://en.wikipedia.org/wiki/Hibernate_(framework))![](docs/images/ext.svg)
-
-<br/>
-
-### **Unique ORM Features**
-
-As of writing this the list below show unique features not supported by other ORMs like:  
-EFCore, Dapper, NHibernate, LINQ to DB, PetaPoco or ServiceStack.
-
-- Fliox provide two schema models for all SQL databases:
-
-  - **Relational** - the default - storing each entity class property in its own column. 
-
-  - **JSON columns** storing entities in a single column called: `json_data`.  
-    This enables schema changes without database migrations and avoid [OR impedance mismatch](https://en.wikipedia.org/wiki/Object%E2%80%93relational_impedance_mismatch)![](docs/images/ext.svg).
-
-- Create automatically common **REST route handlers** `GET`, `PUT`, `PATCH`, `DELETE` to execute [LINQ query filters](https://github.com/friflo/Friflo.Json.Fliox/blob/main/Json/Fliox.Hub/Client/README.md#query-filter)  
-  and CRUD operations (bulk or single resource) for each table using ASP.NET Core.
-
-- `FlioxClient`'s can be used **client-side** on user devices by using a HTTP or WebSocket connection.  
-  Using the listed ORMs above require to disclose the database credentials to the public.  
-
-- `FlioxClient`'s can also be used in **web applications** (JS/WASM) using HTTP or WebSocket's.  
-  Not supported by the mentioned ORMs as they require proprietary - non HTTP based - protocols.
-
-- Support **Pub-Sub** to receive push events for subscribed database changes like: create, update, delete & merge.
-
-- Provide a Web UI - the **Hub Explorer** - to explore databases using a web browser.
-
-- Supports **batching**. Multiple database operations are combined into a single request send to the server.  
-  This enables execution of database transactions in a single request and enable non-chatty data communication.
-
-
-
-**TL;DR**
-
-Try the example Hub online running on AWS - [**DemoHub**](http://ec2-18-215-176-108.compute-1.amazonaws.com/) (EC2 instance: t2-micro, us-east-1)  
-The **DemoHub** .NET project is available at
-[**🚀 friflo/Fliox.Examples**](https://github.com/friflo/Fliox.Examples/blob/main/README.md#-content).
-
-*Note*: JSON Fliox is **not** a UI library. It is designed for simple integration in .NET and Web UI frameworks.
-
-<br/>
-
-
-## 🚩 Content
-
-- [Features](#-features)
-- [Quickstart](#-quickstart)
-- [Providers](#-database-providers)
-- [Examples](#-examples)           ❯  [🚀 friflo/Fliox.Examples](https://github.com/friflo/Fliox.Examples/blob/main/README.md#-content)
-- [Hub](#-hub)
-    - [Client](#client)                 ❯  [README.md](Json/Fliox.Hub/Client/README.md)
-    - [Host](#host)                   ❯  [README.md](Json/Fliox.Hub/Host/README.md)
-    - [Explorer](#explorer)             ❯  [README.md](Json/Fliox.Hub.Explorer/README.md)
-    - [DB](#db)                      ❯  [README.md](Json/Fliox.Hub/DB/README.md)
-    - [Protocol](#protocol)             ❯  [README.md](Json/Fliox.Hub/Protocol/README.md)
-- [Fliox](#-fliox)
-    - [Schema](#schema)              ❯  [README.md](Json/Fliox/Schema/README.md)
-    - [Mapper](#mapper)              ❯  [README.md](Json/Fliox/Mapper/README.md)
-- [Project](#-project)
-    - [API](#api)                     ❯  [friflo/fliox-docs](https://github.com/friflo/fliox-docs)
-    - [Properties](#properties)
-    - [Principles](#principles)
-    - [Build](#build)                  ❯  [README.md](Json.Tests/README.md)
-- [Motivation](#-motivation)
-- [Credits](#-credits)
-
-
-<br/>
-
-## 🎨 Features
-
-Compact list of features supported by Clients and Hubs
-- ASP.NET Core & HttpListener integration
-    - REST API - JSON Schema / OpenAPI
-    - GraphQL API
-    - Batch API - HTTP, WebSocket & UDP
-- Database
-    - CRUD operations - bulk and single resource
-    - Transactions - Begin, Commit & Rollback - for SQL databases
-    - Schema
-    - Queries - LINQ expressions
-    - Container relations (associations)
-    - Entity validation
-    - Send messages (event) & commands (RPC) with validation
-    - Pub-Sub - entity changes, messages and commands
-- Hub Explorer - the admin page
-- Monitoring
-- Authentication / Authorization
-- Code generation
-    - C#, Typescript & Kotlin
-    - JSON Schema, OpenAPI Schema & GraphQL Schema
-    - Schema documentation & class diagram
-- Compatibility
-    - Frameworks: .NET, .NET Core, .NET Framework and .NET Standard
-    - tested on Windows, macOS, Linux & Unity 2021 or higher
-
-Features are explained in more detail in the sections: [Hub](#-hub) and [Fliox](#-fliox)
-
-|                    Performance characteristics                            |                                                                                                             |
-| ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| **RTT**           request / response roundtrip                            | **0.3 ms**                                                                                                  |
-| **Pub-Sub delay** send message ➞ subscriber event                        | **sub millisecond latency**                                                                                 |
-| **Pub-Sub throughput FIFO** 3 subscribers each using a WebSocket          | **50k messages / sec**                                                                                      |
-| **Query**         request 1M rows, each row 124 byte => response 125MB    | **1.3 sec**                                                                                                 |
-| **Throughput**    request / response WebSocket, 4 concurrent clients      | **27k requests / sec**                                                                                      |
-| **ASP.NET Core**  Hub integration                                         | **1 LOC** [Startup.cs](https://github.com/friflo/Fliox.Examples/blob/main/Demo/Hub/Startup.cs#L24)          |
-| **Minimal Client & Server** with: REST, CRUD, Queries, Pub-Sub & Explorer | **60 LOC** [Client](https://github.com/friflo/Fliox.Examples/blob/main/Todo/Client/TodoClient.cs) & [Server](https://github.com/friflo/Fliox.Examples/blob/main/Todo/Hub/Program.cs) |
-| &nbsp;           run on Intel(R) Core(TM) i7-4790K CPU 4.00GHz            |                                                                                                |
-
-<br/>
-
-## ⏩ **Quickstart**
-
-### **Direct database access**
-
-Create a **Console Application** and add the following dependencies:  
-[![nuget](https://img.shields.io/nuget/v/Friflo.Json.Fliox.Hub.svg?label=Hub&color=blue)](https://www.nuget.org/packages/Friflo.Json.Fliox.Hub)
-[![nuget](https://img.shields.io/nuget/v/Friflo.Json.Fliox.Hub.SQLite.svg?label=SQLite&color=blue)](https://www.nuget.org/packages/Friflo.Json.Fliox.Hub.SQLite)
+Get package on [nuget](https://www.nuget.org/packages/Friflo.Just.ECS/) or use the dotnet CLI.
 ```
-dotnet add package Friflo.Json.Fliox.Hub
-dotnet add package Friflo.Json.Fliox.Hub.SQLite
+dotnet add package Friflo.Just.ECS
 ```
+<br/>
 
-Create a `TodoClient` client to specify the database schema.
 
-📄 `TodoClient.cs`
+<span>
+  <img src="https://raw.githubusercontent.com/friflo/Friflo.Engine-docs/main/docs/images/ECS Store.png"  width="418" height="477"/>
+  <img src="https://raw.githubusercontent.com/friflo/Friflo.Engine-docs/main/docs/images/ECS Entity.png" width="450" height="477"/>
+</span>
+
+ECS - dead simple.  
+Highlights
+- No boilerplate - Requires only C# code for **components** and **systems** and adding scripts via the Editor:  
+  **ECS Store**, **ECS System Set** and **ECS Entity** shown in the Inspector.
+- Support **Edit** & **Play** Mode with synchronization of `GameObject` position, scale, rotation and activeSelf.
+- Entities & Systems are stored in scene file and support: Cut/Copy/Paste, Duplicate/Delete, Undo/Redo and Drag & Drop.
+
+<br/>
+
+
+
+# Content
+- [Features](#features)
+- [Releases](#releases)
+- [Development](#development)
+- [Examples](#examples)
+- [Optimization Examples](#optimization-examples)
+- [ECS Benchmarks](#ecs-benchmarks)
+
+
+
+# Features
+
+- Integration
+    - **.NET** - Supported target frameworks: **.NET Standard 2.1 .NET 5 .NET 6 .NET 7 .NET 8**. Supports **WASM / WebAssembly**.  
+      Integration into a .NET project as nuget package see [nuget ⋅ Friflo.Just.ECS](https://www.nuget.org/packages/Friflo.Just.ECS/).  
+    - **Godot** - Integration as nuget package. Tested with Godot 4.1.1.
+- Performance
+    - Use array buffers and cache query instances -> no memory allocations after buffers are large enough.
+    - High memory locality by storing components in continuous memory.
+    - Optimized for high L1 cache line hit rate.
+    - Very good benchmark results at: [**Ecs.CSharp.Benchmark - GitHub**](https://github.com/Doraku/Ecs.CSharp.Benchmark).
+    - Processing components of large queries has the memory bandwidth as bottleneck. Either using multi threading or SIMD.  
+      Alternative ECS implementations using C/C++, Rust, Zig or Mojo 🔥 cannot be faster due to the physical limits.
+- Developer friendly / OOP like API by exposing the [Entity API](https://github.com/friflo/Friflo.Engine-docs/blob/main/api/Entity.md)
+  **struct** as the main interface.  
+  Or compare the `Entity` API with other API's at [Engine-comparison.md](Engine-comparison.md).  
+  The typical alternative of an ECS implementations is providing a `World` class and using `int` parameters as entity `id`s.
+- Record entity changes on arbitrary threads using [CommandBuffer](https://github.com/friflo/Friflo.Engine-docs/blob/main/api/CommandBuffer.md)'s.
+- Build a **hierarchy of entities** typically used in Games and Game Editors.
+- Support **multi threaded** component queries (systems).
+- Support for **Vectorization (SIMD)** of components returned by queries.  
+  Returned component arrays have padding elements at the end to enable SIMD processing without a
+  [scalar remainder (epilogue) loop](https://llvm.org/docs/Vectorizers.html#epilogue-vectorization).  
+  It is preferred over multi threading as it uses only one core providing the same performance as multi threading running on all cores.
+- Minimize times required for GC collection by using struct types for entities and components.  
+  GC.Collect(1) < 0.8 ms when using 10.000.000 entities.
+- Support **tagging** of entities and use them as a filter in queries.
+- Add scripts - similar to `MonoBehavior`'s - to entities in cases OOP is preferred.
+- Support **observing entity changes** by event handlers triggered by adding / removing: components, tags, scripts and child entities.
+- Reliability - no undefined behavior with only one exception:  
+  Performing structural changes - adding/removing components/tags - while iterating a query result.  
+  The solution is buffering structural changes with a CommandBuffer.
+- Enable binding an entity hierarchy to a [TreeDataGrid - GitHub](https://github.com/AvaloniaUI/Avalonia.Controls.TreeDataGrid)
+  in [AvaloniaUI - Website](https://avaloniaui.net/). Screenshot below:    
+<img src="docs/images/Friflo-Engine-Editor.png" width="677" height="371"></img>
+
+
+# Releases
+
+Features in this list are also explained in the Examples. Every new version is backward compatible earlier versions.  
+Exceptions are labeled as  **Breaking change** / **Changed behavior**. These changes are made only on rarely used features.
+
+[Release Tags](https://github.com/friflo/Friflo.Just.Fliox/releases)
+
+- **1.28.0**    Optimize performance of `Add<>()`, `Set<>()` and `Remove<>()` introduced in **1.26.0**.
+
+- **1.26.0**    ![new](docs/images/new.svg) Features:  
+                Add 10 `CreateEntity()` overloads to create entities with components without any structural change in [EntityStoreExtensions](https://github.com/friflo/Friflo.Engine-docs/blob/main/api/EntityStoreExtensions.md).  
+                Add 10 overloads to `Add<>()`, `Set<>()` and `Remove<>()` entity components with one/none structural change in [EntityExtensions](https://github.com/friflo/Friflo.Engine-docs/blob/main/api/EntityExtensions.md).  
+                Add [ArchetypeQuery.ToEntityList()](https://github.com/friflo/Friflo.Engine-docs/blob/main/api/ArchetypeQuery.ToEntityList().md) returning the entities as a list which can be used for structural changes.  
+                Emit events on create / delete entity via [EntityStore.OnEntityCreate](https://github.com/friflo/Friflo.Engine-docs/blob/main/api/EntityStore.OnEntityCreate.md) and
+                [EntityStore.OnEntityDelete](https://github.com/friflo/Friflo.Engine-docs/blob/main/api/EntityStore.OnEntityDelete.md).
+
+- **1.25.0**    ![new](docs/images/new.svg) Switched project to more permissive license LGPL v3.0. Before AGPL v3.0.
+                See [#41](https://github.com/friflo/Friflo.Json.Fliox/discussions/41).
+
+- **1.24.0**    ![new](docs/images/new.svg) Add support for component fields of type: `sbyte, ushort, uint, ulong`.
+                See [Issue #38](https://github.com/friflo/Friflo.Json.Fliox/issues/38).
+
+- **1.23.0**    Support integration in Unity as nuget package.  
+                Supports Mono & AOT/IL2CPP builds. Tested on Windows & macOS.
+
+- **1.19.0**    Add `ArchetypeQuery.ForEachEntity()` for convenient query iteration.  
+                Support / fix using vector types - e.g. `Vector3` - as component fields for .NET 7 or higher.  
+
+- **1.18.0**    Introduced `EntityList` to apply an entity batch to all entities in the list.  
+                Add `Entity.Enabled` to enable/disable an entity.  
+                Add `Entity.EnableTree()` / `Entity.DisableTree()` to enable/disable recursively the child entities of an entity.
+
+- **1.17.0**    Introduced `CreateEntityBatch` to optimize creation of entities.  
+                Added DebugView's for all IEnumerable<> types to enable one click navigation to their elements in the debugger.  
+                E.g. the expanded properties ChildEntities and Components in the examples screenshot.  
+                **Breaking change**: Changed property `Entity.Batch` to method `Entity.Batch()`.
+
+- **1.16.0**    Add support for entity batches and bulk batch operations to apply multiple entity changes at once.  
+                **Changed behavior** of the Archetype assigned to entities without components & tags.  
+                *Before:* Entities were not stored in this specific Archetype. `Archetype.Entities` returned always an empty result.  
+                *Now:*    Entities are stored in this Archetype.  
+
+- **1.15.0**    Reduced the number of properties shown for an entity in the debugger. See screenshot in Examples. 
+
+- **1.14.0**    Add support for parallel (multi threaded) query job execution.
+
+- **1.13.0**    Add support for target framework .NET Standard 2.1 or higher.
+
+- **1.12.0**    Add additional query filters like `WithoutAnyTags()` using an
+                [ArchetypeQuery](https://github.com/friflo/Friflo.Engine-docs/blob/main/api/ArchetypeQuery.md).  
+
+- **1.11.0**    Support to filter entity changes - like adding/removing components/tags - in queries using an
+                [EventFilter](https://github.com/friflo/Friflo.Engine-docs/blob/main/api/EventFilter.md).  
+
+- **1.10.0**    Add support for [CommandBuffer](https://github.com/friflo/Friflo.Engine-docs/blob/main/api/CommandBuffer.md)'s.  
+
+<br/><br/>
+
+
+
+# Development
+
+The library can be build on all platforms a .NET SDK is available.  
+Build options:
+- `dotnet` CLI       - Windows, macOS, Linux
+- Rider              - Windows, macOS, Linux (untested)
+- Visual Studio 2022 - Windows
+- Visual Studio Code - Windows, macOS, Linux (untested)
+
+
+## Library
+- Builds tested on: **Windows, macOS, Linux, WASM / WebAssembly, Unity, Godot, MonoGame**.  
+  Untested: Android, iOS, tvOS.
+- The library is using only *verifiably safe code*. `<AllowUnsafeBlocks>false</AllowUnsafeBlocks>`.  
+  See [Unsafe code](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/unsafe-code).
+  Unsafe code may cause memory corruption and introduces security and stability risks.
+- Pure C# implementation - no C/C++ bindings slowing down runtime / development performance.
+- The C# API is [CLS-compliant](https://learn.microsoft.com/en-us/dotnet/api/system.clscompliantattribute?view=net-8.0#remarks).
+- No custom C# preprocessor directives which requires custom builds to enable / disable features.
+- Deterministic dll build.
+- No 3rd party dependencies.
+
+## Build
+- Size: Friflo.Just.ECS.dll: ~ 210 kb. Implementation: ~ 17.500 LOC.
+- Build time Windows: ~ 5 seconds, macOS (M2): 2,5 seconds.
+- Code coverage of the unit tests: 99,9%. See: [docs/code-coverage.md](docs/code-coverage.md).
+- Unit test execution: ~ 1 second.
+- The nuget package contains four dll's specific for: **.NET Standard 2.1 .NET 6 .NET 7 .NET 8**.  
+  This enables using the most performant features available for each target.  
+  E.g. Some SIMD intrinsics methods available on .NET 7 and .NET 8 but not on earlier versions.
+
+<br/><br/>
+
+
+# Examples
+
+Examples using **Friflo.Just.ECS** are part of the unit tests see: [Tests/ECS/Examples.cs](Tests/ECS/Examples.cs)
+
+When testing the examples use a debugger to check entity state changes while stepping throw the code.
+
+<img src="docs/images/entity-debugger.png" width="630" height="370"></img>  
+*Screenshot:* Entity state - enables browsing the entire store hierarchy.
+
+Examples showing typical use cases of the [Entity API](https://github.com/friflo/Friflo.Engine-docs/blob/main/api/Entity.md)
+
+**General**
+- [Hello World](#hello-world)
+- [EntityStore](#entitystore)
+- [Entity](#entity)
+- [Component](#component)
+- [Tag](#tag)
+- [Archetype](#archetype)
+- [Event](#event)
+- [Signal](#signal)
+- [Query entities](#query-entities)
+- [Enumerate Query Chunks](#enumerate-query-chunks)
+
+**Optimization**
+
+- [Parallel Query Job](#parallel-query-job)
+- [Query Vectorization - SIMD](#query-vectorization---simd)
+- [EventFilter](#eventfilter)
+- [Batch - Create Entity](#batch---create-entity)
+- [Batch - Entity](#batch---entity)
+- [EntityBatch - Query](#entitybatch---query)
+- [EntityBatch - EntityList](#entitybatch---entitylist)
+- [CommandBuffer](#commandbuffer)
+
+
+## Hello World
+
+The hello world examples demonstrates the creation of some entities  
+and their movement using a simple `ForEachEntity()` call.  
+
 ```csharp
-public class TodoClient : FlioxClient
+public struct Velocity : IComponent { public Vector3 value; }
+
+public static void HelloWorld()
 {
-    // --- containers
-    public  readonly    EntitySet <long, Job>   jobs;
+    var store = new EntityStore();
+    for (int n = 0; n < 10; n++) {
+        store.CreateEntity(new Position(n, 0, 0), new Velocity{ value = new Vector3(0, n, 0)});
+    }
+    var query = store.Query<Position, Velocity>();
+    query.ForEachEntity((ref Position position, ref Velocity velocity, Entity entity) => {
+        position.value += velocity.value;
+    });
+}
+```
+In case of moving (updating) thousands or millions of entities an optimized approach can be used.  
+See [Enumerate Query Chunks](#enumerate-query-chunks) and [Parallel Query Job](#parallel-query-job).
+
+
+## EntityStore
+
+An `EntityStore` is a container for entities running as an in-memory database.  
+It is highly optimized for efficient storage fast queries and event handling.  
+In other ECS implementations this type is typically called *World*.
+
+The store enables to
+- create entities
+- modify entities - add / remove components, tags, scripts and child entities
+- query entities with a specific set of components or tags
+- subscribe events like adding / removing components, tags, scripts and child entities
+
+Multiple stores can be used in parallel and act completely independent from each other.  
+The example shows how to create a store. Mainly every example will start with this line.
+
+```csharp
+public static void CreateStore()
+{
+    var store = new EntityStore();
+}
+```
+
+
+## Entity
+
+An `Entity` has an identity - `Id` - and acts as a container for components, tags, script and child entities.  
+Entities are related to a single `EntityStore` and created with `CreateEntity()`.
+
+```csharp
+public static void CreateEntity()
+{
+    var store = new EntityStore();
+    store.CreateEntity();
+    store.CreateEntity();
     
-    public TodoClient(FlioxHub hub, string dbName = null) : base (hub, dbName) { }
+    foreach (var entity in store.Entities) {
+        Console.WriteLine($"entity {entity}");
+    }
+    // > entity id: 1  []       Info:  []  shows entity has no components, tags or scripts
+    // > entity id: 2  []
+}
+```
+
+Entities can be disabled.  
+Disabled entities are excluded from query results by default.  
+To include disabled entities in a query result use `query.WithDisabled()`.
+
+```csharp
+public static void DisableEntity()
+{
+    var store   = new EntityStore();
+    var entity  = store.CreateEntity();
+    entity.Enabled = false;
+    Console.WriteLine(entity);                          // > id: 1  [#Disabled]
+    
+    var query    = store.Query();
+    Console.WriteLine($"default - {query}");            // > default - Query: []  Count: 0
+    
+    var disabled = store.Query().WithDisabled();
+    Console.WriteLine($"disabled - {disabled}");        // > disabled - Query: []  Count: 1
+}
+```
+
+
+## Component
+
+`Components` are `struct`s used to store data on entities.  
+Multiple components with different types can be added / removed to / from an entity.  
+If adding a component using a type already stored in the entity its value gets updated. 
+
+```csharp
+[ComponentKey("my-component")]
+public struct MyComponent : IComponent {
+    public int value;
 }
 
-// ---------------------------------- entity models ----------------------------------
-public class Job
+public static void AddComponents()
 {
-    [Key]       public  long    id;
-    [Required]  public  string  title;
-                public  bool?   completed;
+    var store   = new EntityStore(PidType.UsePidAsId);
+    var entity  = store.CreateEntity();
+    
+    // add components
+    entity.AddComponent(new EntityName("Hello World!"));// EntityName is a build-in component
+    entity.AddComponent(new MyComponent { value = 42 });
+    Console.WriteLine($"entity: {entity}");             // > entity: id: 1  "Hello World!"  [EntityName, Position]
+    
+    // get component
+    Console.WriteLine($"name: {entity.Name.value}");    // > name: Hello World!
+    var value = entity.GetComponent<MyComponent>().value;
+    Console.WriteLine($"MyComponent: {value}");         // > MyComponent: 42
+    
+    // Serialize entity to JSON
+    Console.WriteLine(entity.DebugJSON);
 }
 ```
 
-The following code create / open a <b>SQLite</b> database by using `TodoClient` as the database schema.  
-It also perform some database operations like: `UpsertRange()` & `Query()`
-
-📄 `Program.cs`
-```csharp
-    var schema      = DatabaseSchema.Create<TodoClient>();
-    var database    = new SQLiteDatabase("todo_db", "Data Source=todo.sqlite3", schema);
-    await database.SetupDatabaseAsync(); // for development: create database or update ist schema
-    var hub         = new FlioxHub(database);
-
-    var client      = new TodoClient(hub);
-    client.jobs.UpsertRange(new[] {
-        new Job { id = 1, title = "Buy milk", completed = true },
-        new Job { id = 2, title = "Buy cheese", completed = false }
-    });
-    var jobs = client.jobs.Query(job => job.completed == true);
-    await client.SyncTasks(); // execute UpsertRange & Query task
-
-    foreach (var job in jobs.Result) {
-        Console.WriteLine($"{job.id}: {job.title}");
+Result of `entity.DebugJSON`:
+```json
+{
+    "id": 1,
+    "components": {
+        "name": {"value":"Hello World!"},
+        "my-component": {"value":42}
     }
-    // output:  1: Buy milk
+}
 ```
 
-Run the application
-```
-dotnet run
-```
 
-<br/>
+## Tag
 
-### **Remote database access**
+`Tags` are `struct`s similar to components - except they store no data.  
+They can be utilized in queries similar as components to restrict the amount of entities returned by a query.  
+If adding a tag using a type already attached to the entity the entity remains unchanged.
 
-Remote database access - client / servers setup - require two console applications:
-1. [HTTP server](#1-http-server)  to host a single - or multiple - databases
-2. [HTTP client](#2-http-client)  to access a hosted database
-
-
-#### **1. HTTP Server**
-
-Add dependency to **Hub Explorer** to host a Web UI to browse databases.  
-The **Hub Explorer** is optional but speedup development. It contains the static files for the Web UI.  
-[![nuget](https://img.shields.io/nuget/v/Friflo.Json.Fliox.Hub.Explorer.svg?label=Hub.Explorer&color=blue)](https://www.nuget.org/packages/Friflo.Json.Fliox.Hub.Explorer)
-```
-dotnet add package Friflo.Json.Fliox.Hub.Explorer
-```
-
-Replace the code in 📄 `Program.cs` above to host a database by an HTTP server.
-
-📄 `Program.cs` *(server)*
 ```csharp
-    var schema      = DatabaseSchema.Create<TodoClient>();
-    var database    = new SQLiteDatabase("todo_db", "Data Source=todo.sqlite3", schema);
-    await database.SetupDatabaseAsync(); // for development: create database or update ist schema
-    var hub         = new FlioxHub(database);
-    hub.Info.Set ("TodoHub", "dev", "https://github.com/friflo/Fliox.Examples/tree/main/Todo", "rgb(0 171 145)"); // optional
-    hub.UseClusterDB(); // required by HubExplorer
-    hub.UsePubSub();    // optional - enables Pub-Sub
-    // --- create HttpHost
-    var httpHost    = new HttpHost(hub, "/fliox/");
-    httpHost.UseStaticFiles(HubExplorer.Path); // nuget: https://www.nuget.org/packages/Friflo.Json.Fliox.Hub.Explorer
+public struct MyTag1 : ITag { }
+public struct MyTag2 : ITag { }
+
+public static void AddTags()
+{
+    var store   = new EntityStore();
+    var entity  = store.CreateEntity();
     
-    HttpServer.RunHost("http://localhost:5000/", httpHost); // http://localhost:5000/fliox/
+    // add tags
+    entity.AddTag<MyTag1>();
+    entity.AddTag<MyTag2>();
+    Console.WriteLine($"entity: {entity}");             // > entity: id: 1  [#MyTag1, #MyTag2]
+    
+    // get tag
+    var tag1 = entity.Tags.Has<MyTag1>();
+    Console.WriteLine($"tag1: {tag1}");                 // > tag1: True
+}
 ```
 
-Start the server and check the **Hub Explorer** is available at http://localhost:5000/fliox/
-```
-dotnet run
-```
 
-**ASP.NET Core integration**
+## Archetype
 
-ASP.NET Core integration requires the nuget package.  
-[![nuget](https://img.shields.io/nuget/v/Friflo.Json.Fliox.Hub.AspNetCore.svg?label=AspNetCore&color=blue)](https://www.nuget.org/packages/Friflo.Json.Fliox.Hub.AspNetCore)
-```
-dotnet add package Friflo.Json.Fliox.Hub.AspNetCore
-```
+An `Archetype` defines a specific set of components and tags for its entities.  
+At the same time it is also a container of entities with exactly this combination of components and tags.  
 
-Integration into an existing `WebApplication` `app` is enabled adding
+The following comparison shows the difference in modeling types in **ECS** vs **OOP**.  
+
+<table>
+<tr>
+<th>ECS - Composition</th>
+<th>OOP - Polymorphism</th>
+</tr>
+<tr>
+  <td><i>Inheritance</i><br/>
+      ECS does not utilize inheritance.<br/>
+      It prefers composition over inheritance.
+  </td>
+  <td><br/>
+      Common OPP is based on inheritance.<br/>
+      Likely result: A god base class responsible for everything. 😊
+  </td>  
+</tr>
+<tr>
+  <td><i>Code coupling</i><br/>
+      Data lives in components - behavior in systems.<br/>
+      New behaviors does not affect existing code.
+  </td>
+  <td><br/>
+      Data and behavior are both in classes.<br/>
+      New behaviors may add dependencies or side effects.
+  </td>  
+</tr>
+<tr>
+  <td><i>Storage</i><br/>
+      An Archetype is also a container of entities.
+  </td>
+  <td><br/>
+      Organizing containers is part of application code.
+  </td>
+</tr>
+<tr>
+  <td><i>Changing a type</i><br/>
+      Supported by adding/removing tags or components.
+  </td>
+  <td><br/>
+      Type is fixed an cannot be changed.
+  </td>
+</tr>
+<tr>
+  <td><i>Component access / visibility</i><br/>
+    Having a reference to an EntityStore enables<br/>
+    unrestricted reading and changing of components.
+  </td>
+  <td><br/>
+    Is controlled by access modifiers:<br/>
+    public, protected, internal and private.
+  </td>
+</tr>
+
+<tr>
+  <td colspan="2" align="center"><b>Example</b>
+  </td>
+</tr>
+
+<tr>
+<td style="padding:0px;">
 
 ```csharp
-    app.MapHost("/fliox/{*path}", httpHost);`
+// No base class Animal in ECS
+struct Dog : ITag { }
+struct Cat : ITag { }
+
+
+var store = new EntityStore();
+
+var dogType = store.GetArchetype(Tags.Get<Dog>());
+var catType = store.GetArchetype(Tags.Get<Cat>());
+WriteLine(dogType.Name);            // [#Dog]
+
+dogType.CreateEntity();
+catType.CreateEntity();
+
+var dogs = store.Query().AnyTags(Tags.Get<Dog>());
+var all  = store.Query().AnyTags(Tags.Get<Dog, Cat>());
+
+WriteLine($"dogs: {dogs.Count}");   // dogs: 1
+WriteLine($"all: {all.Count}");     // all: 2
 ```
 
-Or create an `WebApplication` from scratch by replacing `HttpServer.RunHost()` in the snippet above by
+</td>
+<td style="padding:0px;">
 
 ```csharp
-    var app = WebApplication.Create();
-    app.MapRedirect("/", httpHost);
-    app.MapHost("/fliox/{*path}", httpHost);
-    app.Run();
+class Animal { }
+class Dog : Animal { }
+class Cat : Animal { }
+
+
+var animals = new List<Animal>();
+
+var dogType = typeof(Dog);
+var catType = typeof(Cat);
+WriteLine(dogType.Name);            // Dog
+
+animals.Add(new Dog());
+animals.Add(new Cat());
+
+var dogs = animals.Where(a => a is Dog);
+var all  = animals.Where(a => a is Dog or Cat);
+
+WriteLine($"dogs: {dogs.Count()}"); // dogs: 1
+WriteLine($"all: {all.Count()}");   // all: 2
 ```
 
+</td>
+</tr>
+
+<tr>
+  <td colspan="2" align="center"><b>Performance</b>
+  </td>
+</tr>
+<tr>
+  <td><i>Runtime complexity O() of queries for specific types</i><br/>
+      O(size of result set)
+  </td>
+  <td><br/>
+      O(size of all objects)
+  </td>
+</tr>
+<tr>
+  <td><i>Memory layout</i><br/>
+      Continuous memory in heap - high hit rate of L1 cache.
+  </td>
+  <td><br/>
+      Randomly placed in heap - high rate of L1 cache misses.
+  </td>
+</tr>
+<tr>
+  <td><i>Instruction pipelining</i><br/>
+      Minimize conditional branches in update loops.<br/>
+      Process multiple components at once using SIMD.
+  </td>
+  <td><br/><br/>
+      Virtual method calls prevent branch prediction.
+  </td>
+</tr>
+
+</table>
 <br/>
 
-*C# documentation in Hub Explorer (optional)*
 
-The C# documentation of `TodoClient` and other model classes can be utilized in the Hub Explorer.  
-Therefor add the following xml snippet to the *.csproj. It will copy the *.xml files next to the *.dll files.  
-The server read and add the documentation to schema definition.
+## Event
 
-```xml
-  <PropertyGroup>
-	<GenerateDocumentationFile>True</GenerateDocumentationFile>
-  </PropertyGroup>
-  <!-- Copy XML files from all PackageReferences to output dir -->
-  <Target Name="_ResolveCopyLocalNuGetPkgXmls" AfterTargets="ResolveReferences">
-    <ItemGroup>
-      <ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).xml')" Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)'!='' and Exists('%(RootDir)%(Directory)%(Filename).xml')" />
-    </ItemGroup>
-  </Target>
-```
+If changing an entity by adding or removing components, tags, scripts or child entities events are emitted.  
+An application can subscribe to these events like shown in the example.  
+Emitting these type of events increase code decoupling.  
+Without events these modifications need to be notified by direct method calls.  
+The *build-in* events can be subscribed on `EntityStore` and on `Entity` level like shown in the example below.  
 
-<br/>
-
-#### **2. HTTP Client**
-
-Create a second **Console application** to access the hosted database via HTTP.
-
-Add required nuget dependencies  
-[![nuget](https://img.shields.io/nuget/v/Friflo.Json.Fliox.Hub.svg?label=Hub&color=blue)](https://www.nuget.org/packages/Friflo.Json.Fliox.Hub)
-```
-dotnet add package Friflo.Json.Fliox.Hub
-```
-Copy 📄 TodoClient.cs from above to Console project.  
-
-- *Note:* The intention is to implement the `TodoClient` and its model classes in a separate library project.  
-  Client & server applications reference this library as their dependency.  
-  But for simplicity create a copy in the client application for now.
-
-📄 `Program.cs` *(client)*
 ```csharp
-    var hub     = new WebSocketClientHub("todo_db", "ws://localhost:5000/fliox/");
-    var client  = new TodoClient(hub);
-    var jobs    = client.jobs.Query(job => job.completed == true);
-    client.jobs.SubscribeChanges(Change.All, (changes, context) => {
-        Console.WriteLine(changes);
-    });
-    await client.SyncTasks(); // execute Query & SubscribeChanges task
+public static void AddEventHandlers()
+{
+    var store   = new EntityStore();
+    var entity  = store.CreateEntity();
+    entity.OnComponentChanged     += ev => { Console.WriteLine(ev); }; // > entity: 1 - event > Add Component: [MyComponent]
+    entity.OnTagsChanged          += ev => { Console.WriteLine(ev); }; // > entity: 1 - event > Add Tags: [#MyTag1]
+    
+    entity.AddComponent(new MyComponent());
+    entity.AddTag<MyTag1>();
+}
+```
 
-    foreach (var job in jobs.Result) {
-        Console.WriteLine($"{job.id}: {job.title}");
+## Signal
+
+`Signal`s are similar to events. They are used to send and receive custom events on entity level in an application.  
+They have the same characteristics as events described in the section above.  
+The use of `Signal`'s is intended for scenarios when something happens occasionally.  
+This avoids the need to check a state every frame.
+
+```csharp
+public readonly struct MySignal { } 
+
+public static void AddSignalHandler()
+{
+    var store   = new EntityStore();
+    var entity  = store.CreateEntity();
+    entity.AddSignalHandler<MySignal>(signal => { Console.WriteLine(signal); }); // > entity: 1 - signal > MySignal    
+    entity.EmitSignal(new MySignal());
+}
+```
+
+
+## Query entities
+
+As described in the intro queries are a fundamental feature of an ECS.  
+**Friflo.Just.ECS** support queries by any combination of component types and tags.
+
+See [ArchetypeQuery - API](https://github.com/friflo/Friflo.Engine-docs/blob/main/api/ArchetypeQuery.md)
+for available query filters to reduce the number of entities / components returned by a query.  
+
+`ArchetypeQuery` and all its generic variants returned by `store.Query()` are designed for reuse.  
+So their references can be stored and used when needed to avoid unnecessary allocations.
+
+```csharp
+public static void EntityQueries()
+{
+    var store   = new EntityStore();
+    
+    var entity1 = store.CreateEntity(new EntityName("test"), Tags.Get<MyTag1>());
+    var entity2 = store.CreateEntity(Tags.Get<MyTag1>());
+    var entity3 = store.CreateEntity(Tags.Get<MyTag1, MyTag2>());
+    
+    // --- query components
+    var queryNames = store.Query<EntityName>();
+    Console.WriteLine($"EntityName:     {queryNames.Entities}");    // > EntityName:     Entity[1]
+    
+    // --- query tags
+    var queryTag  = store.Query().AllTags(Tags.Get<MyTag1>());
+    Console.WriteLine($"MyTag1:         {queryTag.Entities}");      // > MyTag1:         Entity[3]
+    
+    var queryTags = store.Query().AllTags(Tags.Get<MyTag1, MyTag2>());
+    Console.WriteLine($"MyTag1, MyTag2: {queryTags.Entities}");     // > MyTag1, MyTag2: Entity[1]
+}
+```
+
+Some optional filter snippets used to shrink the result set returned by a query.
+
+```csharp
+    .WithDisabled();                                // query result contains also disabled entities
+    .AllTags(Tags.Get<MyTag1>());                   // query result contains only entities having all given tags
+    .WithoutAnyTags(Tags.Get<MyTag1, MyTag2>());    // entities having any of the given tags are excluded from query result
+    .AllComponents(ComponentTypes.Get<Position>);   // query result contains only entities having all given components
+```
+
+
+## Enumerate Query Chunks
+
+Also as described in the intro enumeration of a query result is fundamental for an ECS.  
+Components are returned as [Chunk](https://github.com/friflo/Friflo.Engine-docs/blob/main/api/Chunk_T_.md)'s and are suitable for
+[Vectorization - SIMD](https://en.wikipedia.org/wiki/Single_instruction,_multiple_data).
+
+```csharp
+public static void EnumerateQueryChunks()
+{
+    var store   = new EntityStore();
+    for (int n = 0; n < 3; n++) {
+        store.CreateEntity(new MyComponent{ value = n + 42 });
     }
-    // output:  1: Buy milk
-    Console.WriteLine("\n wait for events ... (exit with: CTRL + C)\n note: generate events by clicking 'Save' on a record in the Hub Explorer\n");
-    await Task.Delay(3_600_000); // wait 1 hour
+    var query = store.Query<MyComponent>();
+    foreach (var (components, entities) in query.Chunks)
+    {
+        foreach (var component in components.Span) {
+            Console.WriteLine($"MyComponent.value: {component.value}");
+            // > MyComponent.value: 42
+            // > MyComponent.value: 43
+            // > MyComponent.value: 44
+        }
+    }
+}
 ```
 
-Ensure the server is running and start the client application
+
+# Optimization Examples
+
+Examples in this section are targeting for performance optimization.  
+The same functionality can be realized by using the features described in the examples above.  
+Performance optimizations are achieved by SIMD, multi threading / parallelization, batching or bulk operations.
+
+
+## Parallel Query Job
+
+To minimize execution time for large queries a [QueryJob](https://github.com/friflo/Friflo.Engine-docs/blob/main/api/QueryJob.md) can be used.  
+It provides the same functionality as the **foreach** loop in example above but runs on multiple cores in parallel. E.g.
+```csharp
+    foreach (var (components, entities) in query.Chunks) { ... }
 ```
-dotnet run
-```
-
-<br/>
-
-## ⛁ **Database providers**
-
-| Database        | class / nuget        | connection string examples                                               
-| --------------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **in-memory**   | `MemoryDatabase`     | *none*
-|                 | *build-in*           | 
-| **file-system** | `FileDatabase`       | *path of root folder*
-|                 | *build-in*           | 
-| **SQLite**      | `SQLiteDatabase`     | `"Data Source=test_db.sqlite3"`
-|                 | [![nuget](https://img.shields.io/nuget/v/Friflo.Json.Fliox.Hub.SQLite.svg?label=SQLite&color=blue)](https://www.nuget.org/packages/Friflo.Json.Fliox.Hub.SQLite#readme-body-tab)             | `dotnet add package Friflo.Json.Fliox.Hub.SQLite`
-| **MySQL**       | `MySQLDatabase`      | `"Server=localhost;User ID=root;Password=;Database=test_db;"`
-|                 | [![nuget](https://img.shields.io/nuget/v/Friflo.Json.Fliox.Hub.MySQL.svg?label=MySQL&color=blue)](https://www.nuget.org/packages/Friflo.Json.Fliox.Hub.MySQL#readme-body-tab)                | `dotnet add package Friflo.Json.Fliox.Hub.MySQL`
-| **MariaDB**     | `MariaDBDatabase`    | `"Server=localhost;User ID=root;Password=;Database=test_db;"`
-|                 | [![nuget](https://img.shields.io/nuget/v/Friflo.Json.Fliox.Hub.MySQL.svg?label=MySQL&color=blue)](https://www.nuget.org/packages/Friflo.Json.Fliox.Hub.MySQL#readme-body-tab)                | `dotnet add package Friflo.Json.Fliox.Hub.MySQL`
-| **PostgreSQL**  | `PostgreSQLDatabase` | `"Host=localhost;Username=postgres;Password=postgres;Database=test_db;"`
-|                 | [![nuget](https://img.shields.io/nuget/v/Friflo.Json.Fliox.Hub.PostgreSQL.svg?label=PostgreSQL&color=blue)](https://www.nuget.org/packages/Friflo.Json.Fliox.Hub.PostgreSQL#readme-body-tab) | `dotnet add package Friflo.Json.Fliox.Hub.PostgreSQL`
-| **SQL Server**  | `SQLServerDatabase`  | `"Data Source=.;Integrated Security=True;Database=test_db"`
-|                 | [![nuget](https://img.shields.io/nuget/v/Friflo.Json.Fliox.Hub.SQLServer.svg?label=SQLServer&color=blue)](https://www.nuget.org/packages/Friflo.Json.Fliox.Hub.SQLServer#readme-body-tab)    | `dotnet add package Friflo.Json.Fliox.Hub.SQLServer`
-
-The **connection string** of each provider is documented in its nuget `README`
-
-Example snippet to create a database using SQLite looks like:
+To enable running a query job a [ParallelJobRunner](https://github.com/friflo/Friflo.Engine-docs/blob/main/api/ParallelJobRunner.md) is required.  
+The runner can be assigned to the `EntityStore` or directly to the `QueryJob`.  
+A `ParallelJobRunner` instance is thread-safe and can / should be used for multiple / all query jobs.
 
 ```csharp
-    var connection  = "Data Source=todo_db.sqlite3";
-    var schema      = DatabaseSchema.Create<TodoClient>();
-    var database    = new SQLiteDatabase("todo_db", connection, schema);
+public static void ParallelQueryJob()
+{
+    var runner  = new ParallelJobRunner(Environment.ProcessorCount);
+    var store   = new EntityStore { JobRunner = runner };
+    for (int n = 0; n < 10_000; n++) {
+        store.CreateEntity(new MyComponent());
+    }
+    var query = store.Query<MyComponent>();
+    var queryJob = query.ForEach((myComponents, entities) =>
+    {
+        // multi threaded query execution running on all available cores 
+        foreach (ref var myComponent in myComponents.Span) {
+            myComponent.value += 10;                
+        }
+    });
+    queryJob.RunParallel();
+    runner.Dispose();
+}
+```
+In case of structural changes inside the `ForEach((...) => {...})` delegate use a
+[CommandBuffer](https://github.com/friflo/Friflo.Engine-docs/blob/main/api/CommandBuffer.md)
+to record the changes.  
+Structural changes are adding / removing components, tags or child entities and the creation / deletion of entities.  
+After `RunParallel()` returns these changes can be applied to the `EntityStore` by calling `CommandBuffer.Playback()`.
+
+
+## Query Vectorization - SIMD
+
+The most efficient way to speedup query execution is vectorization.  
+Vectorization is similar to loop unrolling - aka loop unwinding - but with hardware support.  
+Its efficiency is superior to multi threading as it requires only a single thread to achieve the same performance gain.  
+So other threads can still keep running without competing for CPU resources.  
+
+*Note:* Vectorization can be combined with multi threading to speedup execution even more.  
+In case of a system with high memory bandwidth the speedup is *speedup(SIMD) * speedup(multi threading)*.  
+If SIMD or multi threading alone already reaches this bandwidth bottleneck their combination provide no performance gain.
+
+The API provide a few methods to convert chunk components into [System.Runtime.Intrinsics - Vectors](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.intrinsics).  
+E.g. `AsSpan256<>` and `StepSpan256`. See all methods at the [Chunk - API](https://github.com/friflo/Friflo.Engine-docs/blob/main/api/Chunk_T_.md).  
+The `Span` retrieved from a  chunk component has padding components at the end to enable vectorization without a scalar remainder loop.
+
+The following examples shows how to increment all `MyComponent.value`'s by 1.  
+
+```csharp
+public static void QueryVectorization()
+{
+    var store   = new EntityStore();
+    for (int n = 0; n < 10_000; n++) {
+        store.CreateEntity(new MyComponent());
+    }
+    var query = store.Query<MyComponent>();
+    foreach (var (component, entities) in query.Chunks)
+    {
+        // increment all MyComponent.value's. add = <1, 1, 1, 1, 1, 1, 1, 1>
+        var add     = Vector256.Create<int>(1);         // create int[8] vector - all values = 1
+        var values  = component.AsSpan256<int>();       // values.Length - multiple of 8
+        var step    = component.StepSpan256;            // step = 8
+        for (int n = 0; n < values.Length; n += step) {
+            var slice   = values.Slice(n, step);
+            var result  = Vector256.Create<int>(slice) + add; // execute 8 add instructions in one CPU cycle
+            result.CopyTo(slice);
+        }
+    }
+}
 ```
 
-<br/>
 
-## 🚀 **Examples**
-📄   [friflo/Fliox.Examples](https://github.com/friflo/Fliox.Examples/blob/main/README.md#-content)
+## EventFilter
 
-A separate git repository with two small **ready-to-run** examples (70 LOC & 550 LOC) using Fliox Clients and Servers.  
-Build and run a server with [**Gitpod**](https://github.com/friflo/Fliox.Examples/blob/main/README.md#-build) using VSCode in the browser without installing anything.
+An alternative to process entity changes - see section [Event](#event) - are `EventFilter`'s.  
+`EventFilter`'s can be used on its own or within a query like in the example below.  
+All events that need to be filtered - like added/removed components/tags - can be added to the `EventFilter`.  
+E.g. `ComponentAdded<Position>()` or `TagAdded<MyTag1>`.  
 
-[<img src="docs/images/server-log.png" width="647" height="191">](https://github.com/friflo/Fliox.Examples/blob/main/README.md#-content)  
-*screenshot: DemoHub server logs*
-<br/><br/>
-
-
-## 📦 **Hub**
-
-Namespace    Friflo.Json.Fliox.Hub.*  
-Assembly     Friflo.Json.Fliox.Hub.dll  <a href="https://www.nuget.org/packages/Friflo.Json.Fliox.Hub">
-  <img src="https://img.shields.io/nuget/v/Friflo.Json.Fliox.Hub.svg?label=Hub&color=blue" alt="CI" align = "center"/>
-</a>
-
-### **Client**
-📄   [README.md](Json/Fliox.Hub/Client/README.md)
-
-Fliox clients are strongly typed C# classes used to access SQL or NoSQL databases.  
-They are implemented by creating a class e.g. `MyClient` extending `FlioxClient`.  
-The database containers are represented as properties in the derived class `MyClient`.  
-
-These classes also acts as a database schemas. They can be assigned to databases hosted on the Hub.  
-Doing this enables features like:
-- JSON validation of entities aka records
-- generate a JSON Schema, an OpenAPI Schema and a GraphQL Schema
-- generate a HTML Schema documentation and a UML class diagram
-- generate classes for various programming languages: C#, Typescript & Kotlin
-
-The `MyClient` can be used to declare custom database commands using DTO's as input and result types.
-
-
-### **Host**
-📄   [README.md](Json/Fliox.Hub/Host/README.md)
-
-A `HttpHost` instance is used to host multiple databases.  
-It is designed to be integrated into HTTP servers like **ASP.NET Core**.  
-This enables access to hosted databases via HTTP, WebSocket or UDP supporting the following Web API's:
-- REST
-- GraphQL
-- Batch API
-
-A `FlioxHub` instance is used to configure the hosted databases, authentication / authorization and Pub-Sub.  
-This `FlioxHub` instance need to be passed to the constructor of the `HttpHost`
-
-### **Explorer**
-📄   [README.md](Json/Fliox.Hub.Explorer/README.md)  
-Assembly     Friflo.Json.Fliox.Hub.Explorer.dll  <a href="https://www.nuget.org/packages/Friflo.Json.Fliox.Hub.Explorer">
-  <img src="https://img.shields.io/nuget/v/Friflo.Json.Fliox.Hub.Explorer.svg?label=Hub.Explorer&color=blue" alt="CI" align = "center"/>
-</a>
-
-The Hub Explorer is an admin page used to access
-databases, containers and entities hosted by a Fliox Hub.  
-The Explorer also enables to execute application specific database commands.
-
-[<img src="docs/images/Fliox-Hub-Explorer.png" width="717" height="278">](Json/Fliox.Hub.Explorer/README.md)  
-*screenshot: Hub Explorer*
-
-### **DB**
-📄   [README.md](Json/Fliox.Hub/DB/README.md)
-
-Provide a set of support databases used to:
-- serve the Hub configuration - used by the Hub Explorer. Schema:
-  [ClusterStore](Json.Tests/assets~/Schema/Markdown/ClusterStore/class-diagram.md)
-- serve monitoring data. Schema:
-  [MonitorStore](Json.Tests/assets~/Schema/Markdown/MonitorStore/class-diagram.md)
-- perform user authentication, authorization and management. Schema:
-  [UserStore](Json.Tests/assets~/Schema/Markdown/UserStore/class-diagram.md)
-
-### **Protocol**
-📄   [README.md](Json/Fliox.Hub/Protocol/README.md)
-
-The Protocol is the communication interface between a `FlioxClient` and a `FlioxHub`.  
-Web clients can use this Protocol to access a Hub using the Batch API via HTTP & JSON.  
-A language specific API - e.g. written in Typescript, Kotlin, ... - is not a requirement.
-
-The Protocol is not intended to be used by C# .NET clients directly.  
-Instead they are using a `FlioxClient` that is optimized to transform API calls into the Protocol.
-
-<br/><br/>
-
-
-
-## 📦 **Fliox**
-
-Namespace    Friflo.Json.Fliox.*  
-Assembly     Friflo.Json.Fliox.dll  <a href="https://www.nuget.org/packages/Friflo.Json.Fliox">
-  <img src="https://img.shields.io/nuget/v/Friflo.Json.Fliox.svg?label=Fliox&color=blue" alt="CI" align = "center"/>
-</a>
-
-
-### **Schema**
-📄   [README.md](Json/Fliox/Schema/README.md)
-
-This module enables transforming schemas expressed by a set of C# classes into
-other programming languages and schema formats like:
-
-- C#, Typescript, Kotlin
-- HTML documentation, Schema Class Diagram
-- JSON Schema, OpenAPI Schema, GraphQL Schema
-
-Its main purpose is to generate schemas and types for various languages of classes extending `FlioxClient`.  
-The screenshots below show Hub pages utilizing the schemas mentioned above.
-
-[<img src="docs/images/MonitorStore-schema.png" width="739" height="226">](Json/Fliox/Schema/README.md#class-diagram)  
-*screenshot: MonitorStore schema as class diagram*
-
-
-[<img src="docs/images/schema-screenshots.png" width="770" height="85">](Json/Fliox/Schema/README.md#html-documentation)  
-*screenshots: Schema documentation, Swagger UI & GraphiQL*
-
-
-
-### **Mapper**
-📄   [README.md](Json/Fliox/Mapper/README.md)
-
-This module enables serialization / deserialization of C# .NET objects to / from JSON.  
-Its feature set and API is similar to the .NET packages:
-- [JamesNK/Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)
-- [System.Text.Json](https://docs.microsoft.com/en-us/dotnet/api/system.text.json)
-
-The module is utilized by the assembly `Friflo.Json.Fliox.Hub` to serialize entities and DTO's.  
-Its also used for serialization of the supported protocols: REST, GraphQL and Batch API.
-
-<br/><br/>
-
-
-
-## 🔧 **Project**
-
-### **API**
-
-The Fliox **C# .NET** API is [CLS-compliant](https://docs.microsoft.com/en-us/dotnet/api/system.clscompliantattribute#remarks)  
-The API is available at [**fliox-docs API Reference**](https://github.com/friflo/fliox-docs)
-
-
-### **Properties**
-
-The goal of the library, its components and API is to be easy digestible for software developers.  
-The properties describe the characteristics of this project - at least what it aims for.  
-These properties are targeted to the needs of users using the library.  
-They fit mostly the aspects described in [CUPID-for joyful coding](https://dannorth.net/2022/02/10/cupid-for-joyful-coding/)![](docs/images/ext.svg).
-
-Topics of the CUPID properties focused by this project are
-- Composable
-    - **No 3rd party dependencies**
-    - [Compatibility](./docs/compatibility.md)
-      **.NET Core 3.1** or higher, **.NET Framework 4.6.2** or higher and **Unity 2020.1** or higher
-    - Seamless integration into existing ASP.NET Core applications with a handful lines of code
-    - Independence from other parts of existing applications
-    - Fliox Clients and Hubs are unit testable without mocking
-    - Replace the underlying database without changing application code
-    - Add custom code / schema generators without changing the application code
-- Predictable
-    - API surface is as small as possible
-    - API: class, method and property names are short, simple, and easy to pronounce
-    - Observable
-        - Monitoring is integral part of the Hub
-        - The `ToString()` methods of classes show only relevant state to avoid noise in debugging sessions
-        - Error and runtime assertion messages are short and expressive
-- Domain based
-    - Enable implementing compact applications which are easy to read and to maintain
-
-### Principles
-
-A set of rules followed by this project to aim for simplicity and performance. See [Principles](docs/principles.md)
-
-### **Build**
-📄   [README.md](Json.Tests/README.md)
-
-The project **Json.Tests** contains a console application and unit tests.  
-Build and run instructions for .NET and Unity are in the README file.
-
-**unit tests**  
-Code coverage: **86%** measured with **JetBrains • docCover**
-
-```yaml
-Passed! - Failed: 0, Passed: 842, Skipped: 0, Total: 842, Duration: 7 s - Friflo.Json.Tests.dll (net6.0)
+```csharp
+public static void FilterEntityEvents()
+{
+    var store   = new EntityStore();
+    store.EventRecorder.Enabled = true; // required for EventFilter
+    
+    store.CreateEntity(new Position(), Tags.Get<MyTag1>());
+    
+    var query = store.Query();
+    query.EventFilter.ComponentAdded<Position>();
+    query.EventFilter.TagAdded<MyTag1>();
+    
+    foreach (var entity in store.Entities)
+    {
+        bool hasEvent = query.HasEvent(entity.Id);
+        Console.WriteLine($"{entity} - hasEvent: {hasEvent}");
+    }
+    // > id: 1  [] - hasEvent: False
+    // > id: 2  [Position] - hasEvent: True
+    // > id: 3  [#MyTag1] - hasEvent: True
+}
 ```
-*summarized logs of unit test execution* - they are executed in  
-<a href="https://github.com/friflo/Friflo.Json.Fliox/actions/workflows/dotnet.yml">
-  <img src="https://github.com/friflo/Friflo.Json.Fliox/workflows/CI/badge.svg" alt="CI" align = "center"/>
-</a>
 
 
-<br/>
+## Batch - Create Entity
 
-## 🔥 Motivation
+Creating entities can be optimized if knowing the components and tags required by an entity in advance.  
+This prevent structural changes every time a component or tag is added to an exiting entity.  
+Entities can be created by using `store.Batch()` or an [CreateEntityBatch](https://github.com/friflo/Friflo.Engine-docs/blob/main/api/CreateEntityBatch.md)
+instance.
 
-The main driver of this project is the development of an competitive online multiplayer game -
-a still unresolved task in my todo list.  
-The foundation to achieve this is commonly a module called *Netcode* in online multiplayer games.  
-The key aspects of *Netcode* are: Synchronizing game state, messaging, low latency, high throughput,
-minimal use of system resources, reliability & easy to use API.  
-As Unity is selected as the Game engine C# .NET is the way to go.
+It can also be used to create multiple entities all with the same set of components and tags.
 
-Another objective is to create an open source software project which may have the potential to be popular.  
-As I have 15+ years experience as a software developer in enterprise environment - Shout-Out to [HERE Technologies](https://www.here.com/) -
-I decided to avoid a Vendor Lock-In to Unity and target for a solution which fits also the needs of common .NET projects.  
-So development is entirely done with .NET Core while checking Unity compatibility on a regular basis.
+```csharp
+public static void CreateEntityBatch()
+{
+    var store   = new EntityStore();
+    var entity  = store.Batch()
+        .Add(new EntityName("test"))
+        .Add(new Position(1,1,1))
+        .CreateEntity();
+    Console.WriteLine($"entity: {entity}");             // > entity: id: 1  "test"  [EntityName, Position]
 
-The result is a project with a feature set useful in common & gaming projects and targeting for optimal performance.  
-The common ground of both areas is the need of databases.  
-In context of game development the game state (Players, NPC, objects, ...) is represented as an in-memory database
-to enable low latency, high throughput and minimal use of system resources.  
-In common projects databases are used to store any kind of data persistent by using a popular DBMS.  
-Specific for online gaming is the ability to send messages from one client to another in *real time*.
-This is enabled by supporting Pub-Sub with sub millisecond latency on *localhost*.
+    // Create a batch - can be cached if needed.
+    var batch = new CreateEntityBatch(store).AddTag<MyTag1>();
+    for (int n = 0; n < 10; n++) {
+        batch.CreateEntity();
+    }
+    var taggedEntities = store.Query().AllTags(Tags.Get<MyTag1>());
+    Console.WriteLine(taggedEntities);                  // > Query: [#MyTag1]  Count: 10
+}
+```
 
-<br/>
+
+## Batch - Entity
+
+When adding/removing components or tags to/from a single entity it will be moved to a new archetype.  
+This is also called a *structural change* and in comparison to other methods a more costly operation.  
+Every component / tag change will cause a *structural change*.
+
+In case of multiple changes on a single entity use an [EntityBatch](https://github.com/friflo/Friflo.Engine-docs/blob/main/api/EntityBatch.md)
+to apply all changes at once.  
+Using this approach only a single or no *structural change* will be executed.
+
+```csharp
+public static void EntityBatch()
+{
+    var store   = new EntityStore();
+    var entity  = store.CreateEntity();
+    
+    entity.Batch()
+        .Add(new Position(1, 2, 3))
+        .AddTag<MyTag1>()
+        .Apply();
+    
+    Console.WriteLine($"entity: {entity}");             // > entity: id: 1  [Position, #MyTag1]
+}
+```
 
 
-## 🙏 Credits
-|                                                                           |             |                                                                      |
-| ------------------------------------------------------------------------- | ----------- | -------------------------------------------------------------------- |
-| [NUnit](https://nunit.org/)                                               | C#          | unit testing of the library in the CLR and Unity                     |
-| [FluentAssertions](https://github.com/fluentassertions/fluentassertions)  | C#          | unit testing of the library                                          |
-| [SQLitePCL.raw](https://github.com/ericsink/SQLitePCL.raw)                | C#          | used by DB Provider for SQLite                                       |
-| [SqlClient](https://github.com/dotnet/SqlClient)                          | C#          | used by DB Provider for Microsoft SQL Server                         |
-| [MySqlConnector](https://github.com/mysql-net/MySqlConnector)             | C#          | used by DB Provider for MySQL, MariaDB and MySQL compatible DBMS     |
-| [Npgsql](https://github.com/npgsql/npgsql)                                | C#          | used by DB Provider for PostgreSQL                                   |
-| [Microsoft.Azure.Cosmos](https://github.com/Azure/azure-cosmos-dotnet-v3) | C#          | used by DB Provider for CosmosDB                                     |
-| [SIPSorcery](https://github.com/sipsorcery-org/sipsorcery)                | C#          | WebRTC - Real-time communication between Web clients without server  |
-| [GraphQL.NET Parser](https://github.com/graphql-dotnet/parser)            | C#          | used by package: Friflo.Json.Fliox.Hub.GraphQL                       |
-| [MdDocs](https://github.com/ap0llo/mddocs)                                | C#          | for [fliox-docs API Reference](https://github.com/friflo/fliox-docs) |
-| [.NET platform](https://dotnet.microsoft.com/en-us/)                      | C# .NET     | the platform providing compiler, runtime, IDE's & ASP.NET Core       |
-| [Swagger](https://swagger.io/)                                            | static JS   | a REST / OpenAPI UI linked by the Hub Explorer                       |
-| [GraphiQL](https://github.com/graphql/graphiql)                           | static JS   | a GraphQL UI linked by the Hub Explorer                              |
-| [Mermaid](https://github.com/mermaid-js/mermaid)                          | static JS   | class diagram for database schema linked by the Hub Explorer         |
-| [Monaco Editor](https://github.com/microsoft/monaco-editor)               | static JS   | used as JSON editor integrated in the Hub Explorer                   |
-| [WinMerge](https://github.com/WinMerge/winmerge)                          | Application | heavily used in this project                                         |
-| [Inscape](https://gitlab.com/inkscape/inkscape)                           | Application | to create SVG's for this project                                     |
+## EntityBatch - Query
 
-<br/>
+In cases you need to add/remove components or tags to entities returned by a query use a **bulk operation**.  
+Executing these type of changes are most efficient using a bulk operation.  
+This can be done by either using `ApplyBatch()` or a common `foreach ()` loop as shown below.  
+To prevent unnecessary allocations the application should cache and reuse the list instance for future batches.
 
-💖 *Like this project?*  
-*Leave a* ⭐ at  [friflo/Friflo.Json.Fliox](https://github.com/friflo/Friflo.Json.Fliox)
+```csharp
+public static void BulkBatch()
+{
+    var store   = new EntityStore();
+    for (int n = 0; n < 1000; n++) {
+        store.CreateEntity();
+    }
+    var batch = new EntityBatch();
+    batch.Add(new Position(1, 2, 3)).AddTag<MyTag1>();
+    store.Entities.ApplyBatch(batch);
+    
+    var query = store.Query<Position>().AllTags(Tags.Get<MyTag1>());
+    Console.WriteLine(query);                           // > Query: [Position, #MyTag1]  Count: 1000
+    
+    // Same as: store.Entities.ApplyBatch(batch) above
+    foreach (var entity in store.Entities) {
+        batch.ApplyTo(entity);
+    }
+}
+```
 
-Happy coding!  
+## EntityBatch - EntityList
 
-<br/>
+An [EntityList](https://github.com/friflo/Friflo.Engine-docs/blob/main/api/EntityList.md) is a container
+of entities added to the list.  
+Single entities are added using `Add()`. `AddTree()` adds an entity and all its children including their children etc.  
+A **bulk operation** can be applied to all entities in the lists as shown in the example below.  
 
-## License
 
-This project is licensed under LGPLv3.  
+```csharp
+public static void EntityList()
+{
+    var store   = new EntityStore();
+    var root    = store.CreateEntity();
+    for (int n = 0; n < 10; n++) {
+        var child = store.CreateEntity();
+        root.AddChild(child);
+        // Add two children to each child
+        child.AddChild(store.CreateEntity());
+        child.AddChild(store.CreateEntity());
+    }
+    var list = new EntityList(store);
+    // Add root and all its children to the list
+    list.AddTree(root);
+    Console.WriteLine($"list - {list}");                // > list - Count: 31
+    
+    var batch = new EntityBatch();
+    batch.Add(new Position());
+    list.ApplyBatch(batch);
+    
+    var query = store.Query<Position>();
+    Console.WriteLine(query);                           // > Query: [Position]  Count: 31
+}
+```
 
-friflo JSON Fliox  
-Copyright © 2024   Ullrich Praetz
+
+## CommandBuffer
+
+A `CommandBuffer` is used to record changes on multiple entities. E.g. `AddComponent()`.  
+These changes are applied to entities when calling `Playback()`.    
+Recording commands with a `CommandBuffer` instance can be done on **any** thread.  
+`Playback()` must be called on the **main** thread.  
+Available commands are in the [CommandBuffer - API](https://github.com/friflo/Friflo.Engine-docs/blob/main/api/CommandBuffer.md).  
+
+This enables recording entity changes in multi threaded application using entity systems / queries.  
+In this case enumerations of query results run on multiple worker threads.  
+Within these enumerations entity changes are recorded with a `CommandBuffer`.  
+After a query thread has finished these changes are executed with `Playback()` on the **main** thread.
+
+```csharp
+public static void CommandBuffer()
+{
+    var store   = new EntityStore();
+    var entity1 = store.CreateEntity(new Position());
+    var entity2 = store.CreateEntity();
+    
+    CommandBuffer cb = store.GetCommandBuffer();
+    var newEntity = cb.CreateEntity();
+    cb.DeleteEntity  (entity2.Id);
+    cb.AddComponent  (newEntity, new EntityName("new entity"));
+    cb.RemoveComponent<Position>(entity1.Id);        
+    cb.AddComponent  (entity1.Id, new EntityName("changed entity"));
+    cb.AddTag<MyTag1>(entity1.Id);
+    
+    cb.Playback();
+    
+    var entity3 = store.GetEntityById(newEntity);
+    Console.WriteLine(entity1);                         // > id: 1  "changed entity"  [EntityName, #MyTag1]
+    Console.WriteLine(entity2);                         // > id: 2  (detached)
+    Console.WriteLine(entity3);                         // > id: 3  "new entity"  [EntityName]
+}
+```
+<br/><br/>
+
+
+
+# ECS Benchmarks
+
+Two benchmarks - subset of [Ecs.CSharp.Benchmark - 2024-02-16](https://github.com/Doraku/Ecs.CSharp.Benchmark/tree/da28d170988949ee36eab62258c6130d473e70ac)
+running on a Mac Mini M2.
+
+Made a subset as the other benchmarks are similar only with different parameters.
+
+1. Create 100.000 entities with three components
+2. Update 100.000 entities with two components
+
+
+## 1. Create 100.000 entities with three components
+
+| Method              | Mean      | Error     | StdDev    | Gen0      | Gen1      | Gen2      | Allocated   |
+|-------------------- |----------:|----------:|----------:|----------:|----------:|----------:|------------:|
+| Arch                |  2.411 ms | 0.0370 ms | 0.0657 ms |         - |         - |         - |  3948.49 KB |
+| SveltoECS           | 28.246 ms | 0.5175 ms | 0.4840 ms |         - |         - |         - |     4.97 KB |
+| DefaultEcs          |  5.931 ms | 0.1179 ms | 0.2685 ms | 2000.0000 | 2000.0000 | 2000.0000 | 19526.04 KB |
+| FlecsNet            | 14.896 ms | 0.1574 ms | 0.1229 ms |         - |         - |         - |     3.81 KB |
+| FrifloEngineEcs ⁽¹⁾ |  1.293 ms | 0.0116 ms | 0.0097 ms | 1000.0000 | 1000.0000 | 1000.0000 |  6758.76 KB |
+| HypEcs              | 22.243 ms | 0.1328 ms | 0.1178 ms | 8000.0000 | 3000.0000 | 3000.0000 | 68762.52 KB |
+| LeopotamEcsLite     |  2.646 ms | 0.0520 ms | 0.0884 ms | 2000.0000 | 2000.0000 | 2000.0000 | 11253.58 KB |
+| LeopotamEcs         |  7.944 ms | 0.1398 ms | 0.1554 ms | 2000.0000 | 2000.0000 | 2000.0000 | 15741.98 KB |
+| MonoGameExtended    | 25.024 ms | 0.0763 ms | 0.1232 ms | 4000.0000 | 3000.0000 | 3000.0000 | 30162.07 KB |
+| Morpeh_Direct       | 90.162 ms | 0.2032 ms | 0.1801 ms | 9000.0000 | 5000.0000 | 2000.0000 | 83805.52 KB |
+| Morpeh_Stash        | 30.655 ms | 0.3532 ms | 0.3131 ms | 4000.0000 | 2000.0000 | 1000.0000 | 44720.38 KB |
+| RelEcs              | 56.156 ms | 0.4419 ms | 0.4134 ms | 9000.0000 | 4000.0000 | 3000.0000 | 75714.03 KB |
+
+⁽¹⁾ *library of this project*
+
+## 2. Update 100.000 entities with two components
+
+Benchmark parameter: Padding = 0
+
+*Notable fact*  
+SIMD MonoThread running on a **single core** beats MultiThread running on 8 cores.  
+So other threads can still keep running without competing for CPU resources.  
+
+| Method                              | Mean        | Error     | StdDev    | Median      | Gen0   | Allocated |
+|------------------------------------ |------------:|----------:|----------:|------------:|-------:|----------:|
+| Arch_MonoThread                     |    62.29 μs |  0.039 μs |  0.031 μs |    62.29 μs |      - |         - |
+| Arch_MultiThread                    |    48.13 μs |  0.345 μs |  0.322 μs |    48.23 μs |      - |         - |
+| DefaultEcs_MonoThread               |   125.48 μs |  0.507 μs |  0.450 μs |   125.58 μs |      - |         - |
+| DefaultEcs_MultiThread              |   127.47 μs |  1.242 μs |  1.101 μs |   127.46 μs |      - |         - |
+| FrifloEngineEcs_MonoThread ⁽¹⁾      |    55.57 μs |  0.699 μs |  0.654 μs |    55.57 μs |      - |         - |
+| FrifloEngineEcs_MultiThread ⁽¹⁾     |    15.96 μs |  0.316 μs |  0.295 μs |    15.94 μs |      - |         - |
+| FrifloEngineEcs_SIMD_MonoThread ⁽¹⁾ |    11.94 μs |  0.012 μs |  0.011 μs |    11.94 μs |      - |         - |
+| HypEcs_MonoThread                   |    56.30 μs |  0.050 μs |  0.042 μs |    56.31 μs |      - |     112 B |
+| HypEcs_MultiThread                  |    62.30 μs |  0.031 μs |  0.027 μs |    62.30 μs | 0.2441 |    2081 B |
+| LeopotamEcsLite                     |   143.43 μs |  0.063 μs |  0.056 μs |   143.45 μs |      - |         - |
+| LeopotamEcs                         |   136.52 μs |  0.071 μs |  0.066 μs |   136.54 μs |      - |         - |
+| MonoGameExtended                    |   464.74 μs |  0.631 μs |  0.590 μs |   465.01 μs |      - |     161 B |
+| Morpeh_Direct                       | 1,394.87 μs | 26.879 μs | 27.603 μs | 1,396.43 μs |      - |       2 B |
+| Morpeh_Stash                        | 1,074.20 μs | 21.396 μs | 58.570 μs | 1,053.22 μs |      - |       2 B |
+| RelEcs                              |   249.37 μs |  0.882 μs |  0.825 μs |   249.44 μs |      - |     169 B |
+| SveltoECS                           |   162.80 μs |  0.688 μs |  0.643 μs |   162.45 μs |      - |         - |
+
+⁽¹⁾ *library of this project*
