@@ -67,7 +67,6 @@ public sealed class EntitySchema
     [Browse(Never)] internal readonly   ComponentType[]                     components;
     [Browse(Never)] internal readonly   ScriptType[]                        scripts;
     [Browse(Never)] internal readonly   TagType[]                           tags;
-    [Browse(Never)] internal readonly   ComponentType                       unresolvedType;
     // --- lookup: component / script
     [Browse(Never)] internal readonly   Dictionary<string, SchemaType>      schemaTypeByKey;
     [Browse(Never)] internal readonly   Dictionary<Type,   ScriptType>      scriptTypeByType;
@@ -109,7 +108,6 @@ public sealed class EntitySchema
             componentTypeByType.Add (componentType.Type,            componentType);
             components              [componentType.StructIndex] =   componentType;
         }
-        unresolvedType = componentTypeByType[typeof(Unresolved)];
         foreach (var scriptType in scriptList) {
             schemaTypeByKey. Add    (scriptType.ComponentKey,       scriptType);    // SHOULD_USE_ADD
             scriptTypeByType.Add    (scriptType.Type,               scriptType);

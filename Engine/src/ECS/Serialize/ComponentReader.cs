@@ -22,13 +22,8 @@ internal sealed class ComponentReader
     private readonly    Dictionary<string, SchemaType>          schemaTypeByKey;
     private readonly    Dictionary<Type,   ScriptType>          scriptTypeByType;
     private readonly    Dictionary<string, TagType>             tagTypeByName;
-    private readonly    ComponentType                           unresolvedType;
     private readonly    HashSet<ScriptType>                     scriptTypes;
     private readonly    ArchetypeKey                            searchKey;
-    private readonly    List<string>                            unresolvedTagList;
-    private readonly    HashSet<string>                         unresolvedTagSet;
-    private readonly    List<UnresolvedComponent>               unresolvedComponentList;
-    private readonly    Dictionary<string, UnresolvedComponent> unresolvedComponentMap;
     private readonly    Dictionary<BytesHash, RawKey>           rawKeyCache;
     private             Utf8JsonParser                          parser;
     private             Bytes                                   buffer;
@@ -41,16 +36,11 @@ internal sealed class ComponentReader
         components              = new RawComponent[1];
         componentReader         = new ObjectReader(EntityStoreBase.Static.TypeStore) { ErrorHandler = ObjectReader.NoThrow };
         var schema              = EntityStoreBase.Static.EntitySchema;
-        unresolvedType          = schema.unresolvedType;
         schemaTypeByKey         = schema.schemaTypeByKey;
         scriptTypeByType        = schema.scriptTypeByType;
         tagTypeByName           = schema.tagTypeByName;
         scriptTypes             = new HashSet<ScriptType>(); // Cannot use Script. User code may override Equals() or GetHashCode()
         searchKey               = new ArchetypeKey();
-        unresolvedTagList       = new List<string>();
-        unresolvedTagSet        = new HashSet<string>();
-        unresolvedComponentList = new List<UnresolvedComponent>();
-        unresolvedComponentMap  = new Dictionary<string, UnresolvedComponent>();
         rawKeyCache             = new Dictionary<BytesHash, RawKey>(BytesHash.Equality);
     }
     
@@ -96,7 +86,6 @@ internal sealed class ComponentReader
     
     private string ReadComponents(Entity entity)
     {
-        unresolvedComponentList.Clear();
         scriptTypes.Clear();
         foreach (var script in entity.Scripts) {
             var scriptType = scriptTypeByType[script.GetType()];
@@ -108,10 +97,6 @@ internal sealed class ComponentReader
             buffer.Clear();
             var json        = new JsonValue(parser.GetInputBytes(component.start - 1, component.end));
             var schemaType  = component.rawKey.schemaType;
-            if (schemaType == unresolvedType) {
-                unresolvedComponentList.Add(new UnresolvedComponent(component.rawKey.key, json));
-                continue;
-            }
             switch (schemaType.Kind) {
                 case SchemaTypeKind.Script:
                     // --- read script
@@ -134,38 +119,7 @@ internal sealed class ComponentReader
         foreach (var scriptType in scriptTypes) {
             EntityUtils.RemoveEntityScript(entity, scriptType);
         }
-        // --- add unresolved components
-        if (unresolvedComponentList.Count > 0 ) {
-            AddUnresolvedComponents(entity);
-        }
         return null;
-    }
-    
-    private void AddUnresolvedComponents(Entity entity)
-    {
-        ref var unresolved          = ref entity.GetComponent<Unresolved>();
-        var componentList           = unresolvedComponentList;
-        var unresolvedComponents    = unresolved.components;
-        if (unresolvedComponents == null) {
-            unresolved.components = new UnresolvedComponent[componentList.Count];
-            componentList.CopyTo(unresolved.components);
-            return;
-        }
-        var map = unresolvedComponentMap;
-        map.Clear();
-        foreach (var component in unresolvedComponents) {
-            map[component.key] = component;
-        }
-        foreach (var component in componentList) {
-            map[component.key] = component;
-        }
-        if (unresolvedComponents.Length != map.Count) {
-            unresolvedComponents = unresolved.components= new UnresolvedComponent[map.Count];
-        }
-        int n = 0;
-        foreach (var pair in map) {
-            unresolvedComponents[n++] = pair.Value;
-        }
     }
     
     /// <summary>
@@ -182,7 +136,7 @@ internal sealed class ComponentReader
         if (!hasComponentTypes && !hasTags) {
             return; // early out in absence of components and tags
         }
-        unresolvedTagList.Clear();
+        
         if (hasTags) {
             AddTags(tags, key);
         }
@@ -200,39 +154,6 @@ internal sealed class ComponentReader
             node.archetype  = newType;
             node.compIndex  = Archetype.MoveEntityTo(curType, entity.Id, node.compIndex, newType);
         }
-        if (unresolvedTagList.Count > 0) {
-            AddUnresolvedTags(entity);
-        }
-    }
-    
-    private void AddUnresolvedTags(Entity entity)
-    {
-        ref var unresolved = ref entity.GetComponent<Unresolved>();
-        var tags    = unresolved.tags;
-        var tagList = unresolvedTagList;
-        if (tags == null) {
-            tags = unresolved.tags = new string[tagList.Count];
-            int n = 0;
-            foreach (var tag in tagList) {
-                tags[n++] = tag;
-            }
-            return;
-        }
-        var set = unresolvedTagSet;
-        set.Clear();
-        foreach (var tag in tags) {
-            set.Add(tag);   
-        }
-        foreach (var tag in tagList) {
-            set.Add(tag);   
-        }
-        if (tags.Length != set.Count) {
-            tags = unresolved.tags = new string[set.Count];
-        }
-        int i = 0;
-        foreach (var tag in set) {
-            tags[i++] = tag;
-        }
     }
     
     private bool GetComponentTypes(ref ComponentTypes componentTypes)
@@ -243,12 +164,6 @@ internal sealed class ComponentReader
         {
             ref var component   = ref components[n];
             var schemaType      = component.rawKey.schemaType;
-            if (schemaType == unresolvedType) {
-                // case: unresolved component
-                hasComponentTypes = true;
-                componentTypes.bitSet.SetBit(unresolvedType.StructIndex);
-                continue;
-            }
             if (schemaType.Kind == SchemaTypeKind.Component)
             {
                 var componentType = (ComponentType)schemaType;
@@ -312,8 +227,6 @@ internal sealed class ComponentReader
         var key = keyBytes.AsString();
         if (schemaTypeByKey.TryGetValue(key, out var schemaType)) {
             rawKey  = new RawKey(key, schemaType);
-        } else {
-            rawKey  = new RawKey(key, unresolvedType);
         }
         var bytesCopy = new Bytes(keyBytes);    // must create copy - given key Bytes will be mutated
         rawKeyCache.Add(new BytesHash(bytesCopy), rawKey);
@@ -324,8 +237,6 @@ internal sealed class ComponentReader
     {
         foreach (var tag in tagList) {
             if (!tagTypeByName.TryGetValue(tag, out var tagType)) {
-                archetypeKey.componentTypes.bitSet.SetBit(unresolvedType.StructIndex);
-                unresolvedTagList.Add(tag);
                 continue;
             }
             archetypeKey.tags.bitSet.SetBit(tagType.TagIndex);

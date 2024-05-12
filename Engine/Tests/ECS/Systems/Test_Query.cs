@@ -20,7 +20,7 @@ public static class Test_Query
         var archetype   = store.GetArchetype(ComponentTypes.Get<Position>());
         for (int n = 1; n <= 1000; n++) {
             var child = archetype.CreateEntity();
-            child.Position = new Position(n, 0, 0);
+            child.GetComponent<Position>() = new Position(n, 0, 0);
             root.AddChild(child);
         }
         // --- force one time allocations
@@ -60,8 +60,8 @@ public static class Test_Query
         var archetype   = store.GetArchetype(ComponentTypes.Get<Position, Rotation>());
         for (int n = 2; n <= 1000; n++) {
             var child = archetype.CreateEntity();
-            child.Position      = new Position(n, 0, 0);
-            child.Rotation      = new Rotation(n, 0, 0, 0);
+            child.GetComponent<Position>()      = new Position(n, 0, 0);
+            child.GetComponent<Rotation>()      = new Rotation(n, 0, 0, 0);
             root.AddChild(child);
         }
         // --- force one time allocations
@@ -93,9 +93,9 @@ public static class Test_Query
         var archetype   = store.GetArchetype(ComponentTypes.Get<Position, Rotation, EntityName>());
         for (int n = 2; n <= 1000; n++) {
             var child = archetype.CreateEntity();
-            child.Position      = new Position(n, 0, 0);
-            child.Rotation      = new Rotation(n, 0, 0, 0);
-            child.Name.value    = "child";
+            child.GetComponent<Position>()      = new Position(n, 0, 0);
+            child.GetComponent<Rotation>()      = new Rotation(n, 0, 0, 0);
+            child.GetComponent<EntityName>().value    = "child";
             root.AddChild(child);
         }
         // --- force one time allocations
@@ -127,10 +127,10 @@ public static class Test_Query
         var archetype   = store.GetArchetype(ComponentTypes.Get<Position, Rotation, Scale3, EntityName>());
         for (int n = 2; n <= 1000; n++) {
             var child = archetype.CreateEntity();
-            child.Position      = new Position(n, 0, 0);
-            child.Rotation      = new Rotation(n, 0, 0, 0);
-            child.Scale3        = new Scale3  (n, 0, 0);
-            child.Name.value    = "child";
+            child.GetComponent<Position>()      = new Position(n, 0, 0);
+            child.GetComponent<Rotation>()      = new Rotation(n, 0, 0, 0);
+            child.GetComponent<Scale3>()        = new Scale3  (n, 0, 0);
+            child.GetComponent<EntityName>().value    = "child";
             root.AddChild(child);
         }
         // --- force one time allocations
@@ -162,10 +162,10 @@ public static class Test_Query
         var archetype   = store.GetArchetype(ComponentTypes.Get<Position, Rotation, Scale3, EntityName>());
         for (int n = 2; n <= 1000; n++) {
             var child = archetype.CreateEntity();
-            child.Position      = new Position(n, 0, 0);
-            child.Rotation      = new Rotation(n, 0, 0, 0);
-            child.Scale3        = new Scale3  (n, 0, 0);
-            child.Name.value    = "child";
+            child.GetComponent<Position>()      = new Position(n, 0, 0);
+            child.GetComponent<Rotation>()      = new Rotation(n, 0, 0, 0);
+            child.GetComponent<Scale3>()        = new Scale3  (n, 0, 0);
+            child.GetComponent<EntityName>().value    = "child";
             root.AddChild(child);
         }
         // --- force one time allocations

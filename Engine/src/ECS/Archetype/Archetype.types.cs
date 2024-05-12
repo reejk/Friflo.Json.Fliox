@@ -6,14 +6,6 @@ using System;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Engine.ECS;
 
-internal struct StandardComponents
-{
-    internal    StructHeap<Position>    position;   // 8
-    internal    StructHeap<Rotation>    rotation;   // 8
-    internal    StructHeap<Scale3>      scale3;     // 8
-    internal    StructHeap<EntityName>  name;       // 8
-}
-
 internal readonly struct ArchetypeConfig
 {
     internal readonly   EntityStoreBase store;

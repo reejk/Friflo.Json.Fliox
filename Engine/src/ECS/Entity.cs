@@ -123,16 +123,6 @@ namespace Friflo.Engine.ECS;
 ///     <see cref="AddComponent{T}()"/>             <br/>
 ///     <see cref="RemoveComponent{T}"/>            <br/>
 /// </item>
-/// <item>  <b>components</b> · common              <br/>
-///     <see cref="Name"/>                          <br/>
-///     <see cref="Position"/>                      <br/>
-///     <see cref="Rotation"/>                      <br/>
-///     <see cref="Scale3"/>                        <br/>
-///     <see cref="HasName"/>                       <br/>
-///     <see cref="HasPosition"/>                   <br/>
-///     <see cref="HasRotation"/>                   <br/>
-///     <see cref="HasScale3"/>                     <br/>
-/// </item>
 /// <item>  <b>scripts</b>              <br/>
 ///     <see cref="Scripts"/>           <br/>
 ///     <see cref="GetScript{T}"/>      <br/>
@@ -231,36 +221,6 @@ public readonly struct Entity : IEquatable<Entity>
                     { get => !Tags.HasAll(EntityUtils.Disabled); set { if (value) RemoveTags(EntityUtils.Disabled); else AddTags(EntityUtils.Disabled); } }
     #endregion
 
-
-
-
-    // ------------------------------------ component properties ----------------------------------
-#region component - properties
-    /// <summary>Returns the <see cref="ECS.EntityName"/> reference of an entity.</summary>
-    /// <exception cref="NullReferenceException"> if entity has no <see cref="EntityName"/></exception>
-    [Browse(Never)] public  ref EntityName      Name        => ref archetype.std.name.    components[compIndex];
-
-    /// <summary>Returns the <see cref="ECS.Position"/> reference of an entity.</summary>
-    /// <exception cref="NullReferenceException"> if entity has no <see cref="Position"/></exception>
-    [Browse(Never)] public  ref Position        Position    => ref archetype.std.position.components[compIndex];
-    
-    /// <summary>Returns the <see cref="ECS.Rotation"/> reference of an entity.</summary>
-    /// <exception cref="NullReferenceException"> if entity has no <see cref="Rotation"/></exception>
-    [Browse(Never)] public  ref Rotation        Rotation    => ref archetype.std.rotation.components[compIndex];
-    
-    /// <summary>Returns the <see cref="ECS.Scale3"/> reference of an entity.</summary>
-    /// <exception cref="NullReferenceException"> if entity has no <see cref="Scale3"/></exception>
-    [Browse(Never)] public  ref Scale3          Scale3      => ref archetype.std.scale3.  components[compIndex];
-    
-    /// <summary>Returns true if the entity has an <see cref="ECS.EntityName"/>.</summary>
-    [Browse(Never)] public  bool                HasName     =>     archetype.std.name              != null;
-    /// <summary>Returns true if the entity has a <see cref="ECS.Position"/>.</summary>
-    [Browse(Never)] public  bool                HasPosition =>     archetype.std.position          != null;
-    /// <summary>Returns true if the entity has a <see cref="ECS.Rotation"/>.</summary>
-    [Browse(Never)] public  bool                HasRotation =>     archetype.std.rotation          != null;
-    /// <summary>Returns true if the entity has a <see cref="ECS.Scale3"/>.</summary>
-    [Browse(Never)] public  bool                HasScale3   =>     archetype.std.scale3            != null;
-    #endregion
 
 
 

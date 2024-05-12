@@ -480,31 +480,31 @@ public static class Test_Entity
         } {
             var entity = store.CreateEntity(new Position(1,1,1), tags);
             IsTrue(entity.Tags.Has<TestTag>());
-            AreEqual(1,         entity.Position.x);
+            AreEqual(1,         entity.GetComponent<Position>().x);
         } {
             var entity = store.CreateEntity(new Position(1,1,1), new Rotation(1,1,1,1), tags);
             IsTrue(entity.Tags.Has<TestTag>());
-            AreEqual(1,         entity.Position.x);
-            AreEqual(1,         entity.Rotation.x);
+            AreEqual(1,         entity.GetComponent<Position>().x);
+            AreEqual(1,         entity.GetComponent<Rotation>().x);
         } {
             var entity = store.CreateEntity(new Position(1,1,1), new Rotation(1,1,1,1), new Scale3(1,1,1), tags);
             IsTrue(entity.Tags.Has<TestTag>());
-            AreEqual(1,         entity.Position.x);
-            AreEqual(1,         entity.Rotation.x);
-            AreEqual(1,         entity.Scale3.x);
+            AreEqual(1,         entity.GetComponent<Position>().x);
+            AreEqual(1,         entity.GetComponent<Rotation>().x);
+            AreEqual(1,         entity.GetComponent<Scale3>().x);
         } {
             var entity = store.CreateEntity(new Position(1,1,1), new Rotation(1,1,1,1), new Scale3(1,1,1), new MyComponent1 { a = 1} , tags);
             IsTrue(entity.Tags.Has<TestTag>());
-            AreEqual(1,         entity.Position.x);
-            AreEqual(1,         entity.Rotation.x);
-            AreEqual(1,         entity.Scale3.x);
+            AreEqual(1,         entity.GetComponent<Position>().x);
+            AreEqual(1,         entity.GetComponent<Rotation>().x);
+            AreEqual(1,         entity.GetComponent<Scale3>().x);
             AreEqual(1,         entity.GetComponent<MyComponent1>().a);
         } {
             var entity = store.CreateEntity(new Rotation(1,1,1,1), new Position(1,1,1), new Scale3(1,1,1), new MyComponent1 { a = 1}, new MyComponent2 { b = 1}, tags);
             IsTrue(entity.Tags.Has<TestTag>());
-            AreEqual(1,         entity.Position.x);
-            AreEqual(1,         entity.Rotation.x);
-            AreEqual(1,         entity.Scale3.x);
+            AreEqual(1,         entity.GetComponent<Position>().x);
+            AreEqual(1,         entity.GetComponent<Rotation>().x);
+            AreEqual(1,         entity.GetComponent<Scale3>().x);
             AreEqual(1,         entity.GetComponent<MyComponent1>().a);
             AreEqual(1,         entity.GetComponent<MyComponent2>().b);
         }

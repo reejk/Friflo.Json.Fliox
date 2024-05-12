@@ -116,14 +116,6 @@ public static class EntityUtils
             return sb.ToString();
         }
         var entity = new Entity(archetype.entityStore, id);
-        if (entity.HasName) {
-            var name = entity.Name.value;
-            if (name != null) {
-                sb.Append("  \"");
-                sb.Append(name);
-                sb.Append('\"');
-            }
-        }
         var typeCount = archetype.componentCount + archetype.tags.Count + entity.Scripts.Length; 
         if (typeCount == 0) {
             sb.Append("  []");

@@ -11,9 +11,6 @@ namespace Friflo.Engine.ECS;
 /// See <a href="https://github.com/friflo/Friflo.Json.Fliox/blob/main/Engine/README.md#tag">Example.</a>
 /// </summary>
 /// <remarks>
-/// In case you want to find a unique entity add the component <see cref="UniqueEntity"/> to an entity<br/>
-/// and use <see cref="EntityStoreBase.GetUniqueEntity"/> to query for this entity.<br/>
-/// <br/>
 /// Optionally attribute the implementing struct with <see cref="TagNameAttribute"/><br/>
 /// to assign a custom tag name used for JSON serialization.
 /// </remarks>

@@ -75,7 +75,7 @@ public static class Test_CommandBuffer
             ecb.Playback();
             
             AreEqual(2, entity.Components.Count);
-            AreEqual(1, entity.Position.x);
+            AreEqual(1, entity.GetComponent<Position>().x);
         }
     }
     
@@ -101,7 +101,7 @@ public static class Test_CommandBuffer
         Console.WriteLine($"EntityCommandBuffer.AddComponent() - duration: {sw.ElapsedMilliseconds} ms");
         
         for (int n = 0; n < count; n++) {
-            Mem.AreEqual(n + 1, entities[n].Position.x);
+            Mem.AreEqual(n + 1, entities[n].GetComponent<Position>().x);
         }
     }
     
@@ -426,11 +426,11 @@ public static class Test_CommandBuffer
         // --- Ensure single modifications are applied by Playback()  
         ecb.AddComponent(entity.Id, new Position(1,2,3));
         ecb.Playback();
-        AreEqual(new Position(1,2,3), entity.Position);
+        AreEqual(new Position(1,2,3), entity.GetComponent<Position>());
         
         ecb.RemoveComponent<Position>(entity.Id);
         ecb.Playback();
-        IsFalse(entity.HasPosition);
+        IsFalse(entity.HasComponent<Position>());
         
         ecb.AddTag<TestTag>(entity.Id);
         ecb.Playback();

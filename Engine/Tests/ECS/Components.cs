@@ -164,8 +164,8 @@ class TestComponent : Script
     public override  void Update() {
         health = 4;
         Entity.GetComponent<MyComponent1>().a = 5 + health;
-        Entity.Position.x += 1;
-        AreEqual(2f, Entity.Position.x);
+        Entity.GetComponent<Position>().x += 1;
+        AreEqual(2f, Entity.GetComponent<Position>().x);
     }
 }
 

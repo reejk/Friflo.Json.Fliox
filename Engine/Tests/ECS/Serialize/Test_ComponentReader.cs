@@ -39,16 +39,16 @@ public static class Test_ComponentReader
         AreEqual(2,     store.Count);
         
         // --- read root DataEntity again
-        root.Position   = default;
-        root.Scale3     = default;
+        root.GetComponent<Position>()   = default;
+        root.GetComponent<Scale3>()     = default;
         root            = converter.DataEntityToEntity(rootNode, store, out _);
         AssertRootEntity(root, 2);
         AreEqual(2,     type.Count);
         AreEqual(2,     store.Count);
         
         // --- read child DataEntity again
-        child.Position  = default;
-        child.Scale3    = default;
+        child.GetComponent<Position>()  = default;
+        child.GetComponent<Scale3>()    = default;
         child           = converter.DataEntityToEntity(childNode, store, out _);
         AssertChildEntity(child);
         AreEqual(2,     type.Count);
@@ -64,14 +64,14 @@ public static class Test_ComponentReader
         
         var root        = store.CreateEntity(10);
         root.AddComponent(new Scale3(1, 2, 3));
-        IsTrue  (root.HasScale3);
-        IsFalse (root.HasPosition);
+        IsTrue  (root.HasComponent<Scale3>());
+        IsFalse (root.HasComponent<Position>());
         
         var rootNode    = new DataEntity { pid = 10, components = RootComponents };
         var rootResult  = converter.DataEntityToEntity(rootNode, store, out _);  // archetype changes
         IsTrue  (root == rootResult);
-        IsTrue  (root.HasScale3);   // could change script and remove all components not present in DataEntity components
-        IsTrue  (root.HasPosition);
+        IsTrue  (root.HasComponent<Scale3>());   // could change script and remove all components not present in DataEntity components
+        IsTrue  (root.HasComponent<Position>());
     }
     
     /// <summary>test structure change in <see cref="ComponentReader.SetEntityArchetype"/></summary>
@@ -278,24 +278,24 @@ public static class Test_ComponentReader
         if (componentCount == 0) {
             return;
         } 
-        AreEqual(1f,                root.Position.x);
-        AreEqual(1f,                root.Position.y);
-        AreEqual(1f,                root.Position.z);
-        AreEqual(2f,                root.Scale3.x);
-        AreEqual(2f,                root.Scale3.y);
-        AreEqual(2f,                root.Scale3.z);
+        AreEqual(1f,                root.GetComponent<Position>().x);
+        AreEqual(1f,                root.GetComponent<Position>().y);
+        AreEqual(1f,                root.GetComponent<Position>().z);
+        AreEqual(2f,                root.GetComponent<Scale3>().x);
+        AreEqual(2f,                root.GetComponent<Scale3>().y);
+        AreEqual(2f,                root.GetComponent<Scale3>().z);
     }
     
     internal static void AssertChildEntity(Entity child) {
         AreEqual(11,    child.Id);
         AreEqual(0,     child.ChildCount);
         AreEqual(2,     child.Archetype.ComponentCount);
-        AreEqual(3f,    child.Position.x);
-        AreEqual(3f,    child.Position.y);
-        AreEqual(3f,    child.Position.z);
-        AreEqual(4f,    child.Scale3.x);
-        AreEqual(4f,    child.Scale3.y);
-        AreEqual(4f,    child.Scale3.z);
+        AreEqual(3f,    child.GetComponent<Position>().x);
+        AreEqual(3f,    child.GetComponent<Position>().y);
+        AreEqual(3f,    child.GetComponent<Position>().z);
+        AreEqual(4f,    child.GetComponent<Scale3>().x);
+        AreEqual(4f,    child.GetComponent<Scale3>().y);
+        AreEqual(4f,    child.GetComponent<Scale3>().z);
     }
     
     /// <remarks>

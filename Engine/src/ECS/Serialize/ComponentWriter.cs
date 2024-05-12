@@ -21,7 +21,6 @@ internal sealed class ComponentWriter
     internal            Bytes                           buffer;
     private  readonly   ComponentType[]                 structTypes;
     private  readonly   Dictionary<Type, ScriptType>    scriptTypeByType;
-    private  readonly   int                             unresolvedIndex;
     
     internal ComponentWriter() {
         buffer              = new Bytes(128);
@@ -29,7 +28,6 @@ internal sealed class ComponentWriter
         var schema          = EntityStoreBase.Static.EntitySchema;
         structTypes         = schema.components;
         scriptTypeByType    = schema.scriptTypeByType;
-        unresolvedIndex     = schema.unresolvedType.StructIndex;
     }
     
     internal JsonValue Write(Entity entity, List<JsonValue> members, bool pretty)
@@ -46,10 +44,6 @@ internal sealed class ComponentWriter
         var heaps = archetype.Heaps();
         for (int n = 0; n < heaps.Length; n++) {
             var heap = heaps[n];
-            if (heap.structIndex == unresolvedIndex) {
-                componentCount += WriteUnresolvedComponents(entity, members);
-                continue;
-            }
             var componentType = structTypes[heap.structIndex];
             if (componentType.ComponentKey == null) {
                 continue;
@@ -76,27 +70,6 @@ internal sealed class ComponentWriter
         }
         writer.ObjectEnd();
         return new JsonValue(writer.json);
-    }
-    
-
-    private int WriteUnresolvedComponents(Entity entity, List<JsonValue> members)
-    {
-        var unresolved = entity.GetComponent<Unresolved>();
-        var components = unresolved.components;
-        if (components == null) {
-            return 0;
-        }
-        int count = 0;
-        foreach (var component in components)
-        {
-            var key     = Encoding.UTF8.GetBytes(component.key); // todo remove byte[] allocation
-            var data    = JsonUtils.JsonValueToBytes(component.value);
-            var start   = writer.json.end;
-            writer.MemberBytes(key, data);
-            members?.AddMember(writer, start);
-            count++;
-        }
-        return count;
     }
 }
 

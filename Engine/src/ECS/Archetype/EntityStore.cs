@@ -46,9 +46,6 @@ public abstract partial class EntityStoreBase
     /// <summary> Returns the current number of <see cref="Archetypes"/> managed by the entity store. </summary>
     [Browse(Never)] public              int                     ArchetypeCount  => archsCount;
     
-    /// <summary>Return all <see cref="UniqueEntity"/>'s in the entity store </summary>
-                    public              QueryEntities           UniqueEntities  => GetUniqueEntities();
-    
     [Browse(Never)] internal     Action<ComponentChanged>       ComponentAdded  => internBase.componentAdded;
     [Browse(Never)] internal     Action<ComponentChanged>       ComponentRemoved=> internBase.componentRemoved;
     [Browse(Never)] internal     Action<TagsChanged>            TagsChanged     => internBase.tagsChanged;
@@ -97,8 +94,6 @@ public abstract partial class EntityStoreBase
         internal        Action                <ComponentChanged>    componentRemoved;       //  8   - fires event on remove component
         internal        Dictionary<int, Action<ComponentChanged>>   entityComponentChanged; //  8   - entity event handlers for add/remove component
         //
-        ///  reused query for <see cref="EntityStoreBase.GetUniqueEntity"/>
-        internal        ArchetypeQuery<UniqueEntity>                uniqueEntityQuery;      //  8
         internal        StackArray<EntityBatch>                     entityBatches;          //  8
         internal        StackArray<CreateEntityBatch>               createEntityBatches;    //  8
         internal        StackArray<EntityList>                      entityLists;            //  8

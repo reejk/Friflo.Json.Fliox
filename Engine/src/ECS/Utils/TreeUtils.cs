@@ -173,7 +173,6 @@ public static class TreeUtils
             }
             missingPids.Add(oldPid);
             var missingChild    = store.CreateEntity();
-            missingChild.AddComponent(new EntityName($"missing entity - pid: {oldPid}"));
             var missingChildPid             = missingChild.Pid;
             children[n]                     = missingChildPid;
             oldToNewPid[oldPid]             = missingChildPid;
@@ -216,94 +215,6 @@ public static class TreeUtils
             list.Add(child);
             AddChildren(child, list, set);
         }
-    }
-    #endregion
-    
-#region Remove ExplorerItem's
-    private static readonly bool Log = false;
-    
-    [ExcludeFromCodeCoverage]
-    private static void LogRemove(Entity parent, Entity entity) {
-        if (!Log) return;
-        var msg = $"parent id: {parent.Id} - Remove child id: {entity.Id}";
-        Console.WriteLine(msg);
-    }
-    
-    public static void RemoveExplorerItems(ExplorerItem[] items)
-    {
-        foreach (var item in items) {
-            var entity = item.Entity; 
-            if (entity.TreeMembership != TreeMembership.treeNode) {
-                // case: entity is not a tree member => cannot remove from tree
-                continue;
-            }
-            var parent = entity.Parent;
-            if (parent.IsNull) {
-                // case: entity is root item => cannot remove root item
-                continue;
-            }
-            LogRemove(parent, entity);
-            parent.RemoveChild(entity);
-        }
-    }
-    #endregion
-    
-#region Move ExplorerItem's
-    [ExcludeFromCodeCoverage]
-    private static void LogMove(Entity parent, int newIndex, Entity entity) {
-        if (!Log) return;
-        var msg = $"parent id: {parent.Id} - Move child: Child[{newIndex}] = {entity.Id}";
-        Console.WriteLine(msg);
-    }
-
-    public static int[] MoveExplorerItemsUp(ExplorerItem[] items, int shift)
-    {
-        var parent  = items[0].Entity.Parent;
-        if (parent.IsNull) {
-            return null;
-        }
-        var indexes = new int[items.Length];
-        var pos     = 0;
-        foreach (var item in items)
-        {
-            var entity      = item.Entity;
-            int index       = parent.GetChildIndex(entity);
-            int newIndex    = index - shift;
-            if (newIndex < pos) {
-                indexes[pos] = index;
-            } else {
-                indexes[pos] = newIndex;
-                LogMove(parent, newIndex, entity);
-                parent.InsertChild(newIndex, entity);
-            }
-            pos++;
-        }
-        return indexes;
-    }
-    
-    public static int[] MoveExplorerItemsDown(ExplorerItem[] items, int shift)
-    {
-        var parent      = items[0].Entity.Parent;
-        if (parent.IsNull) {
-            return null;
-        }
-        var indexes     = new int[items.Length];
-        var childCount  = parent.ChildCount;
-        var pos         = 0;
-        for (int n = items.Length - 1; n >= 0; n--)
-        {
-            var entity      = items[n].Entity;
-            int index       = parent.GetChildIndex(entity);
-            int newIndex    = index + shift;
-            if (newIndex >= childCount - pos++) {
-                indexes[n] = index;
-                continue;
-            }
-            indexes[n] = newIndex;
-            LogMove(parent, newIndex, entity);
-            parent.InsertChild(newIndex, entity);
-        }
-        return indexes;
     }
     #endregion
 }

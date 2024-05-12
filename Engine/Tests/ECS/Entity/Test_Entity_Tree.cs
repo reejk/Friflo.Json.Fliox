@@ -499,7 +499,7 @@ public static class Test_Entity_Tree
         
         // From now: access to components and tree nodes throw a NullReferenceException
         Throws<NullReferenceException> (() => {
-            _ = child.Name; // access component
+            _ = child.GetComponent<EntityName>(); // access component
         });
         Throws<NullReferenceException> (() => {
             _ = child.Parent; // access tree node

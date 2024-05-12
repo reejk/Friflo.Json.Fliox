@@ -18,8 +18,7 @@ public static class Test_ComponentType
     public static void Test_ComponentSchema_Dependencies()
     {
         var schema = EntityStore.GetEntitySchema();
-        AreEqual(4, schema.EngineDependants.Length);
-        
+        AreEqual(3, schema.EngineDependants.Length);
         
         var e = Throws<InvalidOperationException>(() =>
         {

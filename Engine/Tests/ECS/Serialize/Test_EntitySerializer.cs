@@ -144,7 +144,7 @@ public static class Test_Serializer
             
         var root        = store.GetEntityById(10);
         AreEqual(11,    root.ChildIds[0]);
-        IsTrue  (new Position(1,2,3) == root.Position);
+        IsTrue  (new Position(1,2,3) == root.GetComponent<Position>());
         AreEqual(2,     root.Tags.Count);
         IsTrue  (root.Tags.Has<TestTag>());
         IsTrue  (root.Tags.Has<TestTag3>());
