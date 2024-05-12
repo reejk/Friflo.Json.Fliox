@@ -51,16 +51,6 @@ public partial class EntityStore
                 tags.Add(tag.TagName);
             }
         }
-        if (!entity.TryGetComponent<Unresolved>(out var unresolved)) {
-            return;
-        }
-        var unresolvedTags = unresolved.tags;
-        if (unresolvedTags != null) {
-            tags ??= dataEntity.tags = new List<string>(unresolvedTags.Length);
-            foreach (var tag in unresolvedTags) {
-                tags.Add(tag);
-            }
-        }
     }
 
     private void ProcessChildren(DataEntity dataEntity, in EntityNode node)

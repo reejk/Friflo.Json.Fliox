@@ -86,7 +86,6 @@ public static class Test_ComponentSchema
         AssertBlittableComponent<Scale3>        (schema, true);
         AssertBlittableComponent<Transform>     (schema, true);
         AssertBlittableComponent<EntityName>    (schema, true);
-        AssertBlittableComponent<Unresolved>    (schema, false);
         
         // --- BCL types
         AssertBlittableComponent<BlittableDatetime>     (schema, true);
@@ -117,18 +116,6 @@ public static class Test_ComponentSchema
         var disabled = schema.GetTagType<Disabled>();
         AreEqual("D",                           disabled.SymbolName);
         AreEqual(new SymbolColor(150,150,150),  disabled.SymbolColor);
-        
-        var unique = schema.GetComponentType<UniqueEntity>();
-        AreEqual("UQ",                          unique.SymbolName);
-        AreEqual(new SymbolColor(255,145,0),    unique.SymbolColor);
-        
-        var unresolved = schema.GetComponentType<Unresolved>();
-        AreEqual("Un",                          unresolved.SymbolName);
-        AreEqual(new SymbolColor(255,0,0),      unresolved.SymbolColor);
-        var col = unresolved.SymbolColor.Value;
-        AreEqual(255,   col.r);
-        AreEqual(0,     col.g);
-        AreEqual(0,     col.b);
         
         var myComponent1 = schema.GetComponentType<MyComponent1>();
         AreEqual("M1",  myComponent1.SymbolName);

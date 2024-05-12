@@ -21,7 +21,7 @@ public static class Test_ChunkEntities
         child.AddComponent(new Position(2, 0, 0));
         for (int n = 3; n <= 1000; n++) {
             child = child.Archetype.CreateEntity();
-            child.Position = new Position(n, 0, 0);
+            child.GetComponent<Position>() = new Position(n, 0, 0);
             root.AddChild(child);
         }
         

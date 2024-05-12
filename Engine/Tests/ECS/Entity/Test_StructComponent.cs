@@ -121,8 +121,14 @@ public static class Test_StructComponent
         entity2.AddComponent<Position>();
 
         Mem.AssertNoAlloc(start);
-        AreEqual(10f, entity1.Position.x);
-        AreEqual(11f, entity1.Position.y);
+        AreEqual(10f, entity1.GetComponent<Position>().x);
+        AreEqual(11f, entity1.GetComponent<Position>().y);
+        
+        long count = 10; // 1_000_000_000L ~ #PC: 1.924 ms
+        for (var n = 0; n < count; n++) {
+            // _ = player1.GetComponentValue<Position>();
+            _ = entity1.GetComponent<Position>();
+        }
     }
     
     [Test]
@@ -165,7 +171,7 @@ public static class Test_StructComponent
         
         var position = new Position { x = 1 };
         player1.AddComponent(position);
-        AreEqual(1f,        player1.Position.x);
+        AreEqual(1f,        player1.GetComponent<Position>().x);
         AreEqual(1,         posType.Count);
         AreEqual(1,         posType.EntityIds.Length);
         AreEqual("[Position]  entities: 1", posType.ToString());
@@ -173,7 +179,7 @@ public static class Test_StructComponent
         
         player1.AddComponent<Rotation>(); // changes Archetype of player1
         AreEqual(0,         posType.Count);
-        AreEqual(1f,        player1.Position.x);
+        AreEqual(1f,        player1.GetComponent<Position>().x);
         
         var player2 = store.CreateEntity();
         player2.AddComponent<Position>();
@@ -189,6 +195,12 @@ public static class Test_StructComponent
         AreEqual(0,         node.ChildIds.Length);
         AreEqual(0,         node.ParentId);
         AreEqual("entities: 2", store.ToString());
+        
+        long count = 10; // 1_000_000_000L ~ #PC: 969 ms
+        for (var n = 0; n < count; n++) {
+            // _ = player1.GetComponentValue<Position>();
+            _ = player1.GetComponent<Position>();
+        }
     }
     
     [Test]
@@ -196,7 +208,12 @@ public static class Test_StructComponent
         var store   = new EntityStore(PidType.RandomPids);
         var player  = store.CreateEntity();
         player.AddComponent(new Position());
-        IsTrue(player.HasPosition);
+        IsTrue(player.HasComponent<Position>());
+        
+        const long count = 10; // 10_000_000_000L ~ #PC: 9.373 ms
+        for (long n = 0; n < count; n++) {
+            _ = player.HasComponent<Position>();
+        }
     }
     
     [Test]
@@ -220,10 +237,10 @@ public static class Test_StructComponent
         var scale    = new Scale3   { x = 3, y = 4 };
         player.AddComponent(scale);
         AreEqual(1,     type.Count);
-        AreEqual(1f,    player.Rotation.x);
-        AreEqual(2f,    player.Rotation.y);
-        AreEqual(3f,    player.Scale3.x);
-        AreEqual(4f,    player.Scale3.y);
+        AreEqual(1f,    player.GetComponent<Rotation>().x);
+        AreEqual(2f,    player.GetComponent<Rotation>().y);
+        AreEqual(3f,    player.GetComponent<Scale3>().x);
+        AreEqual(4f,    player.GetComponent<Scale3>().y);
         
         var components  =       player.Components;
         AreEqual(2,             components.Count);
@@ -306,8 +323,8 @@ public static class Test_StructComponent
         var rotation1 = new Rotation { x = 3 };
         player1.AddComponent(rotation1); // adding Rotation changes Archetype
         
-        AreEqual(1f, player1.Position.x);
-        AreEqual(2f, player2.Position.x);
+        AreEqual(1f, player1.GetComponent<Position>().x);
+        AreEqual(2f, player2.GetComponent<Position>().x);
     }
 
     [Test]
@@ -319,7 +336,7 @@ public static class Test_StructComponent
         ref var pos = ref player.GetComponent<Position>();
         pos.x = 1;
         // read via Property
-        var p2 = player.Position;
+        var p2 = player.GetComponent<Position>();
         AreEqual(1, p2.x);
     }
     
@@ -364,7 +381,7 @@ public static class Test_StructComponent
         entity1.RemoveComponent<Rotation>();
         AreEqual(1,     type1.Count);
         AreEqual(0,     type2.Count);
-        AreEqual(1f,    entity1.Position.x);
+        AreEqual(1f,    entity1.GetComponent<Position>().x);
         AreEqual(1,     entity1.Archetype.ComponentCount);
         //
         var entity2  = store.CreateEntity();
@@ -407,25 +424,25 @@ public static class Test_StructComponent
     public static void Test_9_Set_Name() {
         var store   = new EntityStore(PidType.RandomPids);
         var entity  = store.CreateEntity();
-        IsFalse(entity.HasName);
-        IsFalse(entity.HasPosition);
-        IsFalse(entity.HasRotation);
-        IsFalse(entity.HasScale3);
+        IsFalse(entity.HasComponent<EntityName>());
+        IsFalse(entity.HasComponent<Position>());
+        IsFalse(entity.HasComponent<Rotation>());
+        IsFalse(entity.HasComponent<Scale3>());
         IsFalse(entity.HasComponent<EntityName>());
         AreEqual("id: 1  []",           entity.ToString());
         
         entity.AddComponent(new EntityName("Hello"));
         AreEqual("'Hello'", entity.GetComponent<EntityName>().ToString());
-        IsTrue(entity.HasName);
+        IsTrue(entity.HasComponent<EntityName>());
         IsTrue(entity.HasComponent<EntityName>());
         AreEqual("id: 1  \"Hello\"  [EntityName]",    entity.ToString());
         
-        AreEqual("Hello",               entity.Name.value);
-        AreEqual("Hello",               Encoding.UTF8.GetString(entity.Name.Utf8));
+        AreEqual("Hello",               entity.GetComponent<EntityName>().value);
+        AreEqual("Hello",               Encoding.UTF8.GetString(entity.GetComponent<EntityName>().Utf8));
         
-        entity.Name.value = null;
+        entity.GetComponent<EntityName>().value = null;
         AreEqual("id: 1  [EntityName]", entity.ToString());
-        IsNull(                         entity.Name.Utf8);
+        IsNull(                         entity.GetComponent<EntityName>().Utf8);
     }
     
     [Test]
@@ -503,15 +520,15 @@ public static class Test_StructComponent
         AreEqual(3, count);
         AreEqual(3, store.Entities.Count);
         
-        entity.Position.x = 123;
-        entity.Rotation.x = 123;
+        entity.GetComponent<Position>().x = 123;
+        entity.GetComponent<Rotation>().x = 123;
         entity.MyComponent1().a = 123;
         entity.DeleteEntity();
         
         // ensure components of new entity have default values
         entity = arch3.CreateEntity();
-        AreEqual(0, entity.Position.x);
-        AreEqual(0, entity.Rotation.x);
+        AreEqual(0, entity.GetComponent<Position>().x);
+        AreEqual(0, entity.GetComponent<Rotation>().x);
         AreEqual(0, entity.MyComponent1().a);
     }
     

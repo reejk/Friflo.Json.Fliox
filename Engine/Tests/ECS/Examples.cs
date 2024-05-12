@@ -90,7 +90,7 @@ public static void AddComponents()
     Console.WriteLine($"entity: {entity}");             // > entity: id: 1  "Hello World!"  [EntityName, Position]
     
     // get component
-    Console.WriteLine($"name: {entity.Name.value}");    // > name: Hello World!
+    Console.WriteLine($"name: {entity.GetComponent<EntityName>().value}");    // > name: Hello World!
     var value = entity.GetComponent<MyComponent>().value;
     Console.WriteLine($"MyComponent: {value}");         // > MyComponent: 42
     
@@ -98,19 +98,6 @@ public static void AddComponents()
     Console.WriteLine(entity.DebugJSON);
 }
 
-/// <summary>
-/// <see cref="EntityStoreBase.GetUniqueEntity"/> is used to reduce code coupling.
-/// It enables access to a unique entity without the need to pass the entity by external code.   
-/// </summary>
-[Test]
-public static void GetUniqueEntity()
-{
-    var store   = new EntityStore();
-    var entity  = store.CreateEntity(new UniqueEntity("Player")); // UniqueEntity is a build-in component
-    
-    var player  = store.GetUniqueEntity("Player");
-    Console.WriteLine($"entity: {player}");             // > entity: id: 1  [UniqueEntity]
-}
 
 public struct MyTag1 : ITag { }
 public struct MyTag2 : ITag { }

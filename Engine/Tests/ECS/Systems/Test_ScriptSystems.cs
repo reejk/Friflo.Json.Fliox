@@ -183,7 +183,7 @@ public static class Test_ScriptSystems
         child.AddComponent(new Position(2, 0, 0));
         for (int n = 3; n <= 1000; n++) {
             child = child.Archetype.CreateEntity();
-            child.Position = new Position(n, 0, 0);
+            child.GetComponent<Position>() = new Position(n, 0, 0);
             root.AddChild(child);
         }
         CreateSystems(store);
@@ -204,8 +204,8 @@ public static class Test_ScriptSystems
         child.AddComponent(new Rotation(2, 0, 0, 0));
         for (int n = 3; n <= 1000; n++) {
             child = child.Archetype.CreateEntity();
-            child.Position      = new Position(n, 0, 0);
-            child.Rotation      = new Rotation(n, 0, 0, 0);
+            child.GetComponent<Position>()      = new Position(n, 0, 0);
+            child.GetComponent<Rotation>()      = new Rotation(n, 0, 0, 0);
             root.AddChild(child);
         }
         CreateSystems(store);
@@ -227,9 +227,9 @@ public static class Test_ScriptSystems
         child.AddComponent(new EntityName("child"));
         for (int n = 3; n <= 1000; n++) {
             child = child.Archetype.CreateEntity();
-            child.Position      = new Position(n, 0, 0);
-            child.Rotation      = new Rotation(n, 0, 0, 0);
-            child.Name.value    = "child";
+            child.GetComponent<Position>()      = new Position(n, 0, 0);
+            child.GetComponent<Rotation>()      = new Rotation(n, 0, 0, 0);
+            child.GetComponent<EntityName>().value    = "child";
             root.AddChild(child);
         }
         CreateSystems(store);
@@ -252,10 +252,10 @@ public static class Test_ScriptSystems
         child.AddComponent(new EntityName("child"));
         for (int n = 3; n <= 1000; n++) {
             child = child.Archetype.CreateEntity();
-            child.Position      = new Position(n, 0, 0);
-            child.Rotation      = new Rotation(n, 0, 0, 0);
-            child.Scale3        = new Scale3  (n, 0, 0);
-            child.Name.value    = "child";
+            child.GetComponent<Position>()      = new Position(n, 0, 0);
+            child.GetComponent<Rotation>()      = new Rotation(n, 0, 0, 0);
+            child.GetComponent<Scale3>()        = new Scale3  (n, 0, 0);
+            child.GetComponent<EntityName>().value    = "child";
             root.AddChild(child);
         }
         CreateSystems(store);
@@ -279,10 +279,10 @@ public static class Test_ScriptSystems
         child.AddComponent(new EntityName("child"));
         for (int n = 3; n <= 1000; n++) {
             child = child.Archetype.CreateEntity();
-            child.Position      = new Position(n, 0, 0);
-            child.Rotation      = new Rotation(n, 0, 0, 0);
-            child.Scale3        = new Scale3  (n, 0, 0);
-            child.Name.value    = "child";
+            child.GetComponent<Position>()      = new Position(n, 0, 0);
+            child.GetComponent<Rotation>()      = new Rotation(n, 0, 0, 0);
+            child.GetComponent<Scale3>()        = new Scale3  (n, 0, 0);
+            child.GetComponent<EntityName>().value    = "child";
             root.AddChild(child);
         }
         CreateSystems(store);

@@ -158,10 +158,8 @@ var expect =
         var store       = new EntityStore(PidType.UsePidAsId);
         var entity      = store.CreateEntity(10);
         var child       = store.CreateEntity(11);
-        var unresolved  = new Unresolved { tags = new [] { "xyz" } };
         entity.AddChild(child);
         entity.AddComponent(new Position { x = 1, y = 2, z = 3 });
-        entity.AddComponent(unresolved);
         entity.AddTag<TestTag>();
         entity.AddTag<TestTag3>();
         entity.AddScript(new TestScript1 { val1 = 10 });
@@ -197,12 +195,6 @@ var expect =
         entity.AddComponent<Position>();
         entity.AddComponent<Rotation>();
         entity.AddScript(new TestScript1 { val1 = 42 });
-        var unresolved = new Unresolved {
-            components = new[] {
-                new UnresolvedComponent ("unknown", new JsonValue("{\"value\": 1}"))
-            }
-        };
-        entity.AddComponent(unresolved);
         
         var members = new List<JsonValue>();
         
@@ -211,7 +203,6 @@ var expect =
         AreEqual("\"name\":{\"value\":\"test\"}",               members[0].ToString());
         AreEqual("\"pos\":{\"x\":0,\"y\":0,\"z\":0}",           members[1].ToString());
         AreEqual("\"rot\":{\"x\":0,\"y\":0,\"z\":0,\"w\":0}",   members[2].ToString());
-        AreEqual("\"unknown\":{\"value\": 1}",                  members[3].ToString());
         AreEqual("\"script1\":{\"val1\":42}",                   members[4].ToString());
         
         Throws<ArgumentNullException>(() => {

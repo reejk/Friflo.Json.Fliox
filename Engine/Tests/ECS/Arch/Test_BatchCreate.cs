@@ -35,8 +35,8 @@ public static class Test_BatchCreate
         AreEqual("id: 1  [Position, Rotation, #TestTag, #TestTag2]", entity1.ToString());
         AreEqual(1, store.Info.PooledCreateEntityBatchCount);
         
-        AreEqual(new Position(),            entity1.Position);
-        AreEqual(new Rotation (1, 2, 3, 4), entity1.Rotation);
+        AreEqual(new Position(),            entity1.GetComponent<Position>());
+        AreEqual(new Rotation (1, 2, 3, 4), entity1.GetComponent<Rotation>());
         
         // --- batch 2
         batch = store.Batch();
@@ -54,8 +54,8 @@ public static class Test_BatchCreate
         AreEqual("id: 2  [Position, Rotation, #Disabled, #TestTag, #TestTag2]", entity2.ToString());
         AreEqual(1, store.Info.PooledCreateEntityBatchCount);
         
-        AreEqual(new Position(1, 2, 3),     entity2.Position);
-        AreEqual(new Rotation(),            entity2.Rotation);
+        AreEqual(new Position(1, 2, 3),     entity2.GetComponent<Position>());
+        AreEqual(new Rotation(),            entity2.GetComponent<Rotation>());
     }
     
     [Test]
@@ -69,13 +69,13 @@ public static class Test_BatchCreate
         batch.Get<Position>().x = 1;
         var entity1 = batch.CreateEntity();
         AreEqual("id: 1  [Position, Rotation]", entity1.ToString());
-        AreEqual(new Position(1, 0, 0), entity1.Position);
+        AreEqual(new Position(1, 0, 0), entity1.GetComponent<Position>());
         AreEqual(0, store.Info.PooledCreateEntityBatchCount);
 
         batch.Get<Position>().x = 2;
         var entity2 = batch.CreateEntity(2);
         AreEqual("id: 2  [Position, Rotation]", entity2.ToString());
-        AreEqual(new Position(2, 0, 0), entity2.Position);
+        AreEqual(new Position(2, 0, 0), entity2.GetComponent<Position>());
         AreEqual(0, store.Info.PooledCreateEntityBatchCount);
         
         var e = Throws<InvalidOperationException>(() => {

@@ -84,7 +84,7 @@ public static class Test_Batch
         batch.Apply();
         
         AreEqual("id: 1  \"test\"  [EntityName, Position, #TestTag]", entity.ToString());
-        AreEqual(new Position(1, 1, 1), entity.Position);
+        AreEqual(new Position(1, 1, 1), entity.GetComponent<Position>());
         AreEqual(1, store.Info.PooledEntityBatchCount);
         
         var addTags     = Tags.Get<TestTag2>();
@@ -101,7 +101,7 @@ public static class Test_Batch
         batch.Apply();
         
         AreEqual("id: 1  [Position, #TestTag2]", entity.ToString());
-        AreEqual(new Position(2, 2, 2), entity.Position);
+        AreEqual(new Position(2, 2, 2), entity.GetComponent<Position>());
         AreEqual(1, store.Info.PooledEntityBatchCount);
         
         AreEqual(3, countAdd);

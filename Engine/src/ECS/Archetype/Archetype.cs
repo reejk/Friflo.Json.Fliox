@@ -20,7 +20,7 @@ namespace Friflo.Engine.ECS;
 /// See <a href="https://github.com/friflo/Friflo.Json.Fliox/blob/main/Engine/README.md#archetype">Example.</a>
 /// </summary>
 /// <remarks>
-/// E.g. all entities with a <see cref="Position"/> and <see cref="Rotation"/> component are store in the same archetype.<br/>
+/// E.g. all entities with a Position and Rotation component are store in the same archetype.<br/>
 /// In case of removing one of these components or adding a new one from / to an <see cref="Entity"/> the entity is moved to a different archetype.<br/>
 /// <br/>
 /// This is the basic pattern for an archetype base ECS. This approach enables efficient entity / component queries.<br/>
@@ -83,7 +83,6 @@ public sealed class Archetype
     [Browse(Never)] internal readonly   EntityStoreBase     store;          //  8   - containing EntityStoreBase
     [Browse(Never)] internal readonly   EntityStore         entityStore;    //  8   - containing EntityStore
     [Browse(Never)] internal readonly   int                 archIndex;      //  4   - archetype index in EntityStore.archs[]
-    [Browse(Never)] internal readonly   StandardComponents  std;            // 32   - heap references to std types: Position, Rotation, ...
     [Browse(Never)] private             ArchetypeQuery      query;          //  8   - return the entities of this archetype
     #endregion
     
@@ -176,21 +175,6 @@ public sealed class Archetype
             var heap = heaps[pos];
             heap.SetArchetypeDebug(this);
             heapMap[heap.structIndex] = heap;
-            SetStandardComponentHeaps(heap, ref std);
-        }
-    }
-    
-    private static void SetStandardComponentHeaps(StructHeap heap, ref StandardComponents std)
-    {
-        var type = heap.StructType;
-        if        (type == typeof(Position)) {
-            std.position    = (StructHeap<Position>)    heap;
-        } else if (type == typeof(Rotation)) {
-            std.rotation    = (StructHeap<Rotation>)    heap;
-        } else if (type == typeof(Scale3)) {
-            std.scale3      = (StructHeap<Scale3>)      heap;
-        } else if (type == typeof(EntityName)) {
-            std.name        = (StructHeap<EntityName>)  heap;
         }
     }
 

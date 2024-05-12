@@ -41,12 +41,8 @@ public static class Test_EntitySerializer
         AreEqual(1,                     entity.ChildCount);
         AreEqual(11,                    entity.ChildIds[0]);
         
-        AreEqual(2,                     entity.Components.Count);
-        AreEqual(new Position(1, 2, 3), entity.Position);
-        
-        var unresolved = entity.GetComponent<Unresolved>();
-        AreEqual(1,                     unresolved.tags.Length);
-        AreEqual("xyz",                 unresolved.tags[0]);
+        AreEqual(1,                     entity.Components.Count);
+        AreEqual(new Position(1, 2, 3), entity.GetComponent<Position>());
         
         AreEqual(1,                     entity.Scripts.Length);
         var script =                    entity.GetScript<TestScript1>();

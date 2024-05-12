@@ -90,10 +90,10 @@ public static class Test_TreeUtils
         AreEqual(2,             child2.ChildCount);
         
         var clone2 =            root.ChildEntities  [indexes[0]];
-        AreEqual("child-2",     clone2.Name.value);
+        AreEqual("child-2",     clone2.GetComponent<EntityName>().value);
         
         var clone3 =            child2.ChildEntities[indexes[1]];
-        AreEqual("child-3",     clone3.Name.value);
+        AreEqual("child-3",     clone3.GetComponent<EntityName>().value);
         
         // --- Duplicate root
         entities        = new List<Entity>{ root };
@@ -263,127 +263,6 @@ public static class Test_TreeUtils
             var error0 = "entity: 10 'children' - entity contains itself as a child.";
             AreEqual(error0,    result.errors[0]);
         }
-    }
-    #endregion
-
-#region Remove ExplorerItem's
-    /// <summary> Cover <see cref="TreeUtils.RemoveExplorerItems"/> </summary>
-    [Test]
-    public static void Test_TreeUtils_RemoveExplorerItems()
-    {
-        var store   = new EntityStore(PidType.UsePidAsId);
-        var root    = store.CreateEntity(1);
-        store.SetStoreRoot(root);
-        var child2  = store.CreateEntity(2);
-        var child3  = store.CreateEntity(3);
-        root.AddChild(child2);
-        root.AddChild(child3);
-        root.  AddComponent(new EntityName("root"));
-        child2.AddComponent(new EntityName("child-2"));
-        child3.AddComponent(new EntityName("child-3"));
-        
-        var tree        = new ExplorerItemTree(root, "test-tree");
-        var item2       = tree.GetItemById(2);
-        var items = new [] { item2 };
-        AreEqual(2,         root.ChildCount);
-        AreEqual("child-2", root.ChildEntities[0].Name.value);
-     
-        // remove child2
-        TreeUtils.RemoveExplorerItems(items);
-        AreEqual(1,         root.ChildCount);
-        AreEqual("child-3", root.ChildEntities[0].Name.value);
-        
-        // remove - already removed - child2 again
-        TreeUtils.RemoveExplorerItems(items);
-        AreEqual(1,         root.ChildCount);
-        AreEqual("child-3", root.ChildEntities[0].Name.value);
-    }
-    
-    /// <summary> Cover <see cref="TreeUtils.RemoveExplorerItems"/> </summary>
-    [Test]
-    public static void Test_TreeUtils_Remove_RootItem()
-    {
-        var store   = new EntityStore(PidType.UsePidAsId);
-        var root    = store.CreateEntity(1);
-        store.SetStoreRoot(root);
-        
-        var tree        = new ExplorerItemTree(root, "test-tree");
-        var items = new [] { tree.RootItem };
-        AreEqual(1,         store.Count);
-     
-        // try remove root item
-        TreeUtils.RemoveExplorerItems(items);
-        AreEqual(1,         store.Count);
-    }
-    #endregion
-    
-#region Move ExplorerItem's
-    /// <summary> Cover <see cref="TreeUtils.MoveExplorerItemsUp"/> </summary>
-    [Test]
-    public static void Test_TreeUtils_MoveExplorerItemsUp()
-    {
-        var store   = new EntityStore(PidType.UsePidAsId);
-        var root    = store.CreateEntity(1);
-        store.SetStoreRoot(root);
-        var child2  = store.CreateEntity(2);
-        var child3  = store.CreateEntity(3);
-        root.AddChild(child2);
-        root.AddChild(child3);
-        root.AddComponent(new EntityName("root"));
-        
-        var tree        = new ExplorerItemTree(root, "test-tree");
-        var item3       = tree.GetItemById(3);
-        var items       = new [] { item3 };
-        AreEqual(new [] { 2, 3 },   root.ChildIds.ToArray());
-     
-        // move item3 up
-        TreeUtils.MoveExplorerItemsUp(items, 1);
-        AreEqual(new [] { 3, 2 },   root.ChildIds.ToArray());
-        
-        // move item3 up - already on top => index stay unchanged
-        TreeUtils.MoveExplorerItemsUp(items, 1);
-        AreEqual(new [] { 3, 2 },   root.ChildIds.ToArray());
-    }
-    
-    /// <summary> Cover <see cref="TreeUtils.MoveExplorerItemsDown"/> </summary>
-    [Test]
-    public static void Test_TreeUtils_MoveExplorerItemsDown()
-    {
-        var store   = new EntityStore(PidType.UsePidAsId);
-        var root    = store.CreateEntity(1);
-        store.SetStoreRoot(root);
-        var child2  = store.CreateEntity(2);
-        var child3  = store.CreateEntity(3);
-        root.AddChild(child2);
-        root.AddChild(child3);
-        root.AddComponent(new EntityName("root"));
-        
-        var tree        = new ExplorerItemTree(root, "test-tree");
-        var item2       = tree.GetItemById(2);
-        var items       = new [] { item2 };
-        AreEqual(new [] { 2, 3 },   root.ChildIds.ToArray());
-     
-        // move item2 down
-        TreeUtils.MoveExplorerItemsDown(items, 1);
-        AreEqual(new [] { 3, 2 },   root.ChildIds.ToArray());
-        
-        // move item2 down - already on bottom => index stay unchanged
-        TreeUtils.MoveExplorerItemsDown(items, 1);
-        AreEqual(new [] { 3, 2 },   root.ChildIds.ToArray());
-    }
-    
-    [Test]
-    public static void Test_TreeUtils_MoveExplorerItems_root()
-    {
-        var store   = new EntityStore(PidType.UsePidAsId);
-        var root    = store.CreateEntity(1);
-        store.SetStoreRoot(root);
-        
-        var tree        = new ExplorerItemTree(root, "test-tree");
-        
-        var items   = new [] { tree.RootItem };
-        IsNull(TreeUtils.MoveExplorerItemsUp  (items, 1));
-        IsNull(TreeUtils.MoveExplorerItemsDown(items, 1));
     }
     #endregion
 }

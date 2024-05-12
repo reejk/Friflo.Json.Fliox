@@ -9,7 +9,6 @@
 
         <!-- packaging -->
         <PublishRepositoryUrl>false</PublishRepositoryUrl>
-        <LangVersion>9</LangVersion>
         <!-- packaging: end -->
     </PropertyGroup>
 
