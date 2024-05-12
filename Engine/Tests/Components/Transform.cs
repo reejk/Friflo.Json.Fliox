@@ -3,7 +3,6 @@
 
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Json.Fliox;
 using static System.Diagnostics.DebuggerBrowsableState;
 using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
 
@@ -15,7 +14,6 @@ namespace Friflo.Engine.ECS;
 public struct  Transform : IComponent
 {
     [Browse(Never)]
-    [Ignore]
     [FieldOffset (0)] public    Matrix4x4   value;  // 64
     
     // --- 1st row

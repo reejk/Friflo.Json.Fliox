@@ -114,7 +114,6 @@ namespace Friflo.Engine.ECS;
 ///     <see cref="Pid"/>       <br/>
 ///     <see cref="Archetype"/> <br/>
 ///     <see cref="Store"/>     <br/>
-///     <see cref="DebugJSON"/> <br/>
 /// </item>
 /// <item>  <b>components</b> · generic             <br/>
 ///     <see cref="HasComponent{T}"/>               <br/>
@@ -205,11 +204,6 @@ public readonly struct Entity : IEquatable<Entity>
     
     /// <summary> Returns true if the entity was deleted. </summary>
     [Browse(Never)] public  bool                IsNull          => store?.nodes[Id].archetype == null;
-    
-    /// <summary> Return the <b>JSON</b> representation of an entity. </summary>
-    /// <remarks> Counterpart of <see cref="Serialize.DataEntity.DebugJSON"/> </remarks>
-    // Assigning JSON in a Debugger does not change the entity state as a developer would expect. So setter is only internal.   
-    [Browse(Never)] public  string              DebugJSON { get => EntityUtils.EntityToJSON(this); internal set => EntityUtils.JsonToEntity(this, value);  }
     
     /// <summary> Display additional entity information like Pid, Enabled, JSON and attached event handlers.</summary>
                     internal EntityInfo         Info => new EntityInfo(this);

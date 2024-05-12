@@ -3,9 +3,6 @@
 
 using System;
 using System.Reflection;
-using Friflo.Json.Fliox;
-using Friflo.Json.Fliox.Mapper;
-using Friflo.Json.Fliox.Mapper.Map;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
@@ -25,7 +22,6 @@ public abstract class ScriptType : SchemaType
     private  readonly   CloneScript     cloneScript;    //  8
     
     internal abstract   Script          CreateScript();
-    internal abstract   void            ReadScript  (ObjectReader reader, JsonValue json, Entity entity);
     
     protected ScriptType(string scriptKey, int scriptIndex, Type type)
         : base (scriptKey, type, SchemaTypeKind.Script)
@@ -53,29 +49,17 @@ public abstract class ScriptType : SchemaType
 internal sealed class ScriptType<T> : ScriptType 
     where T : Script, new()
 {
-    private readonly    TypeMapper<T>   typeMapper;
     public  override    string          ToString() => $"Script: [*{typeof(T).Name}]";
     
     // Check initialization by directly calling unit test method: Test_SchemaType.Test_SchemaType_Script_Index()
     internal static readonly   int      Index = SchemaTypeUtils.GetScriptIndex(typeof(T));
     
-    internal ScriptType(string scriptComponentKey, int scriptIndex, TypeMapper<T> typeMapper)
+    internal ScriptType(string scriptComponentKey, int scriptIndex)
         : base(scriptComponentKey, scriptIndex, typeof(T))
     {
-        this.typeMapper = typeMapper;
     }
     
     internal override Script CreateScript() {
         return new T();
-    }
-    
-    internal override void ReadScript(ObjectReader reader, JsonValue json, Entity entity) {
-        var script = entity.GetScript<T>();
-        if (script != null) { 
-            reader.ReadToMapper(typeMapper, json, script, true);
-            return;
-        }
-        script = reader.ReadMapper(typeMapper, json);
-        entity.archetype.entityStore.AppendScript(entity, script);
     }
 }

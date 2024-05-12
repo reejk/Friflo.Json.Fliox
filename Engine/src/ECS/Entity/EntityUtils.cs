@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Friflo.Engine.ECS.Serialize;
-using Friflo.Json.Fliox;
 using static System.Diagnostics.DebuggerBrowsableState;
 using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
 
@@ -19,7 +17,6 @@ namespace Friflo.Engine.ECS;
 /// Used to provide additional debug information for an <see cref="Entity"/>:<br/>
 /// <see cref="Entity.Pid"/>                <br/>
 /// <see cref="Entity.Enabled"/>            <br/>
-/// <see cref="Entity.DebugJSON"/>          <br/>
 /// <see cref="Entity.DebugEventHandlers"/> <br/>
 /// </summary>
 internal readonly struct EntityInfo
@@ -27,7 +24,6 @@ internal readonly struct EntityInfo
 #region properties
     internal            long                Pid             => entity.Pid;
     internal            bool                Enabled         => entity.Enabled;
-    internal            string              JSON            => EntityUtils.EntityToJSON(entity);
     internal            DebugEventHandlers  EventHandlers   => EntityStore.GetEventHandlers(entity.store, entity.Id);
     public   override   string              ToString()      => "";
     #endregion
@@ -140,45 +136,6 @@ public static class EntityUtils
             sb.Append(']');
         }
         return sb.ToString();
-    }
-
-    private static readonly EntitySerializer EntitySerializer   = new EntitySerializer();
-    
-    internal static string EntityToJSON(Entity entity)
-    {
-        var serializer = EntitySerializer;
-        lock (serializer) {
-            return serializer.WriteEntity(entity);
-        }
-    }
-    
-    /// <remarks> The "id" in the passed JSON <paramref name="value"/> is ignored. </remarks>
-    internal static void JsonToEntity(Entity entity, string value)
-    {
-        if (value == null) throw new ArgumentNullException(nameof(value));
-        var serializer = EntitySerializer;
-        lock (serializer) {
-            var jsonValue = new JsonValue(value);
-            var error = serializer.ReadIntoEntity(entity, jsonValue);
-            if (error == null) {
-                return;
-            }
-            throw new ArgumentException(error);
-        }
-    }
-    
-    private static readonly DataEntitySerializer DataEntitySerializer = new DataEntitySerializer();
-    
-    internal static string DataEntityToJSON(DataEntity dataEntity)
-    {
-        var serializer = DataEntitySerializer;
-        lock (serializer) {
-            var json = serializer.WriteDataEntity(dataEntity, out string error);
-            if (json == null) {
-                return error;
-            }
-            return json;
-        }
     }
     
     // ---------------------------------- Script utils ----------------------------------
