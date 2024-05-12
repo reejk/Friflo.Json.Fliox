@@ -104,9 +104,7 @@ public abstract partial class EntityStoreBase
     internal static class Static
     {
         internal static readonly    EntitySchema    EntitySchema    = SchemaUtils.RegisterSchemaTypes();
-        /// <summary>All items in the <see cref="DefaultHeapMap"/> are always null</summary>
-        internal static readonly    StructHeap[]    DefaultHeapMap  = new StructHeap[EntitySchema.maxStructIndex];
-        
+
         /// <summary>The index of the <see cref="EntityStoreBase.defaultArchetype"/> - index is always 0</summary>
         internal const              int             DefaultArchIndex        =  0;
         

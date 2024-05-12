@@ -16,7 +16,7 @@ namespace Friflo.Engine.ECS;
 /// <remarks>
 /// <para>
 /// Every <see cref="Entity"/> has an <see cref="Id"/> and is a container of
-/// <see cref="ECS.Tags"/>, <see cref="IComponent"/>'s, <see cref="Script"/>'s and other child <see cref="Entity"/>'s.<br/>
+/// <see cref="ECS.Tags"/> and <see cref="IComponent"/>'s.<br/>
 /// <br/>
 /// Comparison to other game engines.
 /// <list type="bullet">
@@ -42,11 +42,6 @@ namespace Friflo.Engine.ECS;
 /// An <see cref="Entity"/> is typically an object that can be rendered on screen like a cube, sphere, capsule, mesh, sprite, ... .<br/>
 /// Therefore a renderable component needs to be added with <see cref="AddComponent{T}()"/> to an <see cref="Entity"/>.<br/>
 /// <br/>
-/// <b>Scripts</b>
-/// <br/>
-/// A <see cref="Script"/>'s can be added to an <see cref="Entity"/> to add custom logic (script) and data to an entity.<br/>
-/// <see cref="Script"/>'s are added or removed with <see cref="AddScript{T}"/> / <see cref="RemoveScript{T}"/>.<br/>
-/// <br/>
 /// <b>Tags</b>
 /// <br/>
 /// <see cref="Tags"/> can be added to an <see cref="Entity"/> to enable filtering entities in queries.<br/>
@@ -70,14 +65,6 @@ namespace Friflo.Engine.ECS;
 ///     <description><see cref="ComponentChanged"/></description>
 ///     <description>
 ///       <see cref="ComponentChangedAction.Add"/>, <see cref="ComponentChangedAction.Update"/>, <see cref="ComponentChangedAction.Remove"/>
-///     </description>
-///   </item>
-///   <item>
-///     <description>script</description>
-///     <description><see cref="OnScriptChanged"/></description>
-///     <description><see cref="ScriptChanged"/></description>
-///     <description>
-///       <see cref="ScriptChangedAction.Remove"/>, <see cref="ScriptChangedAction.Add"/>, <see cref="ScriptChangedAction.Replace"/>
 ///     </description>
 ///   </item>
 ///   <item>
@@ -106,13 +93,6 @@ namespace Friflo.Engine.ECS;
 ///     <see cref="AddComponent{T}()"/>             <br/>
 ///     <see cref="RemoveComponent{T}"/>            <br/>
 /// </item>
-/// <item>  <b>scripts</b>              <br/>
-///     <see cref="Scripts"/>           <br/>
-///     <see cref="GetScript{T}"/>      <br/>
-///     <see cref="TryGetScript{T}"/>   <br/>
-///     <see cref="AddScript{T}"/>      <br/>
-///     <see cref="RemoveScript{T}"/>   <br/>
-/// </item>
 /// <item>  <b>tags</b>                 <br/>
 ///     <see cref="Tags"/>              <br/>
 ///     <see cref="AddTag{T}"/>         <br/>
@@ -126,7 +106,6 @@ namespace Friflo.Engine.ECS;
 /// <item>  <b>events</b>                           <br/>
 ///     <see cref="OnTagsChanged"/>                 <br/>
 ///     <see cref="OnComponentChanged"/>            <br/>
-///     <see cref="OnScriptChanged"/>               <br/>
 ///     <see cref="DebugEventHandlers"/>            <br/>
 /// </item>
 /// <item>  <b>signals</b>                          <br/>
@@ -149,9 +128,6 @@ public readonly struct Entity : IEquatable<Entity>
     /// <summary>Return the <see cref="IComponent"/>'s added to the entity.</summary>
     public              EntityComponents        Components      => new EntityComponents(this);
     
-    /// <summary>Return the <see cref="Script"/>'s added to the entity.</summary>
-    public              Scripts                 Scripts         => new Scripts(EntityUtils.GetScripts(this));
-
     /// <summary>Return the <see cref="ECS.Tags"/> added to the entity.</summary>
     /// <returns>
     /// A copy of the <see cref="Tags"/> assigned to the <see cref="Entity"/>.<br/>
@@ -255,51 +231,6 @@ public readonly struct Entity : IEquatable<Entity>
     public bool RemoveComponent<T>()            where T : struct, IComponent {
         int archIndex = 0;
         return EntityStoreBase.RemoveComponent<T>(Id, ref refArchetype, ref refCompIndex, ref archIndex, StructHeap<T>.StructIndex);
-    }
-    #endregion
-
-
-
-
-    // ------------------------------------ script methods ----------------------------------------
-#region script - methods
-    /// <summary>Get the script of the passed <typeparamref name="TScript"/> <see cref="Type"/>.</summary>
-    /// <returns>null if the entity has no script of the passed <typeparamref name="TScript"/> <see cref="Type"/>.</returns>
-    /// <remarks>Note: Use <see cref="EntityUtils.GetEntityScript"/> as non generic alternative.</remarks> 
-    public TScript        GetScript<TScript>()        where TScript : Script, new() {
-        return (TScript)EntityUtils.GetScript(this, typeof(TScript));
-    }
-    /// <summary>Gets the script with the passed <typeparamref name="TScript"/> <see cref="Type"/>.</summary>
-    /// <returns>
-    /// Returns true if the entity has a script the passed <typeparamref name="TScript"/> <see cref="Type"/>.<br/>
-    /// Otherwise false.
-    /// </returns>
-    public bool     TryGetScript<TScript>(out TScript result)
-        where TScript : Script, new()
-    {
-        result = (TScript)EntityUtils.GetScript(this, typeof(TScript));
-        return result != null;
-    }
-    /// <summary>Add the given <paramref name="script"/> to the entity.<br/>
-    /// If the entity contains a script of the same <typeparamref name="TScript"/> <see cref="Type"/> it is replaced.<br/>
-    /// See <a href="https://github.com/friflo/Friflo.Json.Fliox/blob/main/Engine/README.md#script">Example.</a>
-    /// </summary>
-    /// <returns>
-    /// The script with the passed <typeparamref name="TScript"/> <see cref="Type"/> previously added to the entity.<br/>
-    /// Return null if the entity had no script with the passed <typeparamref name="TScript"/> <see cref="Type"/>.
-    /// </returns>
-    /// <remarks>Note: Use <see cref="EntityUtils.AddNewEntityScript"/> as non generic alternative.</remarks>
-    public TScript  AddScript<TScript>(TScript script)   where TScript : Script, new() {
-        return (TScript)EntityUtils.AddScript    (this, ScriptType<TScript>.Index, script);
-    }
-    /// <summary>Remove the script with the given <typeparamref name="TScript"/> <see cref="Type"/> from the entity.</summary>
-    /// <returns>
-    /// The script the script with the passed <typeparamref name="TScript"/> <see cref="Type"/> previously added to the entity.<br/>
-    /// Or null if the entity has no script with the passed <typeparamref name="TScript"/> <see cref="Type"/>.
-    /// </returns>
-    /// <remarks>Note: Use <see cref="EntityUtils.RemoveEntityScript"/> as non generic alternative.</remarks>
-    public TScript        RemoveScript<TScript>()        where TScript : Script, new() {
-        return (TScript)EntityUtils.RemoveScript (this, ScriptType<TScript>.Index);
     }
     #endregion
 
@@ -431,13 +362,6 @@ public readonly struct Entity : IEquatable<Entity>
     /// </summary>
     public event Action<ComponentChanged>       OnComponentChanged      { add    => EntityStoreBase.AddComponentChangedHandler      (store, Id, value);
                                                                           remove => EntityStoreBase.RemoveComponentChangedHandler   (store, Id, value);  }
-    /// <summary>
-    /// Add / remove an event handler for <see cref="ScriptChanged"/> events triggered by:<br/>
-    /// <see cref="AddScript{T}"/> <br/> <see cref="RemoveScript{T}"/>.<br/>
-    /// See <a href="https://github.com/friflo/Friflo.Json.Fliox/blob/main/Engine/README.md#event">Example.</a>
-    /// </summary>
-    public event Action<ScriptChanged>          OnScriptChanged         { add    => EntityStore.AddScriptChangedHandler             (store, Id, value);
-                                                                          remove => EntityStore.RemoveScriptChangedHandler          (store, Id, value);  }
 
     /// <summary>
     /// Add the given <see cref="Signal{TEvent}"/> handler to the entity.<br/>
@@ -487,9 +411,6 @@ public readonly struct Entity : IEquatable<Entity>
     /// <remarks>The index will change if entity is moved to another <see cref="Archetype"/></remarks>
     [Browse(Never)] internal    ref int         refCompIndex    => ref store.nodes[Id].compIndex;
     [Browse(Never)] internal        int            compIndex    =>     store.nodes[Id].compIndex;
-    
-    [Browse(Never)] internal    ref int         refScriptIndex  => ref store.nodes[Id].scriptIndex;
-    [Browse(Never)] internal        int            scriptIndex  =>     store.nodes[Id].scriptIndex;
 
     // Deprecated comment. Was valid when Entity was a class
     // [c# - What is the memory overhead of a .NET Object - Stack Overflow]     // 16 overhead for reference type on x64

@@ -177,56 +177,6 @@ internal sealed class AssemblyLoader
             if (typeof(IComponent).IsAssignableFrom(type)) {
                 componentTypes.Add(type);
             }
-            return;
-        }
-        if (type.IsSubclassOf(typeof(Script)))
-        {
-            componentTypes.Add(type);
         }
     }
-}
-
-[ExcludeFromCodeCoverage]
-internal static class BaseClassFilter
-{
-    private static readonly ulong[] MicrosoftPublicTokens = {
-        0x_b03f5f7f11d50a3a,   // 187 Microsoft (Debug)
-        0x_cc7b13ffcd2ddd51,   //  30 Microsoft (Debug)
-        0x_7cec85d7bea7798e,   //   1 Microsoft - System.Private.CoreLib
-    };
-    
-    private static ulong BytesToLong(byte[] buffer)
-    {
-        ulong result = 0;
-        for (int n = 0; n < buffer.Length; n++) {
-            result |= (ulong)buffer[n] << (56 - 8 * n); 
-        }
-        return result;
-    }
-    
-    private static bool IsMicrosoftToken(ulong token)
-    {
-        foreach (var msToken in MicrosoftPublicTokens) {
-            if (msToken == token) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    internal static Assembly[] RemoveBaseClassAssemblies(Assembly[] assemblies)
-    {
-        var result = new List<Assembly>(assemblies.Length);
-        foreach (var assembly in assemblies) {
-            AssemblyName name = assembly.GetName();
-            byte[] tokenBytes = name.GetPublicKeyToken();
-            var token = BytesToLong(tokenBytes);
-            if (IsMicrosoftToken(token)) {
-                continue;
-            }
-            // Console.WriteLine(assembly.GetName());
-            result.Add(assembly);
-        }
-        return result.ToArray();
-    }    
 }

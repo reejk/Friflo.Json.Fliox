@@ -11,9 +11,7 @@ using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Engine.ECS;
 
-[ComponentKey("pos")]
 [StructLayout(LayoutKind.Explicit)]
-[ComponentSymbol("P",  "0, 170, 0")]
 public struct  Position : IComponent, IEquatable<Position>
 {
     [Browse(Never)]

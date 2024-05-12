@@ -39,8 +39,6 @@ public static class Test_CommandBuffer
         ecb.AddTag          <TestTag>    (1);
         ecb.AddComponent    <Position>   (1);
         ecb.RemoveComponent <Position>   (1);
-        ecb.AddScript                    (1, new TestScript1());
-        ecb.RemoveScript    <TestScript1>(1);
         
         AreEqual(2,                                     ecb.ComponentCommandsCount);
         var componentCommands = (ComponentCommands<Position>)ecb.ComponentCommands[0];
@@ -58,10 +56,6 @@ public static class Test_CommandBuffer
         AreEqual(2,                                     ecb.EntityCommands.Length);
         AreEqual("Create entity - id: 1",               ecb.EntityCommands[0].ToString());
         AreEqual("Create entity - id: 2",               ecb.EntityCommands[1].ToString());
-        
-        AreEqual(2,                                     ecb.ScriptCommandsCount);
-        AreEqual("entity: 1 - Add [#TestScript1]",      ecb.ScriptCommands[0].ToString());
-        AreEqual("entity: 1 - Remove [#TestScript1]",   ecb.ScriptCommands[1].ToString());
     }
 }
 

@@ -17,10 +17,6 @@ public abstract class ComponentType : SchemaType
 {
     /// <summary> The index in <see cref="EntitySchema"/>.<see cref="EntitySchema.Components"/>. </summary>
     public   readonly   int         StructIndex;    //  4
-    /// <summary> Return true if <see cref="IComponent"/>'s of this type can be copied. </summary>
-    public   readonly   bool        IsBlittable;    //  4
-    /// <summary> The size in bytes of the <see cref="IComponent"/> struct. </summary>
-    public   readonly   int         StructSize;     //  4
     
     internal abstract   StructHeap          CreateHeap();
     internal abstract   bool                RemoveEntityComponent  (Entity entity);
@@ -30,12 +26,10 @@ public abstract class ComponentType : SchemaType
     internal abstract   BatchComponent      CreateBatchComponent();
     internal abstract   ComponentCommands   CreateComponentCommands();
     
-    protected ComponentType(string componentKey, int structIndex, Type type, int byteSize)
-        : base (componentKey, type, Component)
+    protected ComponentType(int structIndex, Type type)
+        : base (type, Component)
     {
         StructIndex = structIndex;
-        IsBlittable = GetBlittableType(type) == BlittableType.Blittable;
-        StructSize  = byteSize;
     }
 }
 
@@ -44,8 +38,8 @@ internal sealed class ComponentType<T> : ComponentType
 {
     public  override    string          ToString() => $"Component: [{typeof(T).Name}]";
 
-    internal ComponentType(string componentKey, int structIndex)
-        : base(componentKey, structIndex, typeof(T), ByteSize)
+    internal ComponentType(int structIndex)
+        : base(structIndex, typeof(T))
     {
     }
     

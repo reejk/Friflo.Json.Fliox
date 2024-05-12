@@ -29,9 +29,6 @@ public sealed class CommandBuffer
     /// <summary> Return the number of recorded tag commands. </summary>
     [Browse(Never)] public  int             TagCommandsCount        => intern.tagCommandsCount;
     
-    /// <summary> Return the number of recorded script commands. </summary>
-    [Browse(Never)] public  int             ScriptCommandsCount     => intern.scriptCommandsCount;
-    
     /// <summary> Return the number of recorded entity commands. </summary>
     [Browse(Never)] public  int             EntityCommandsCount     => intern.entityCommandCount;
     
@@ -47,7 +44,6 @@ public sealed class CommandBuffer
     
 #region internal debugging properties
     internal ReadOnlySpan<TagCommand>       TagCommands             => new (intern.tagCommands,    0, intern.tagCommandsCount);
-    internal ReadOnlySpan<ScriptCommand>    ScriptCommands          => new (intern.scriptCommands, 0, intern.scriptCommandsCount);
     internal ReadOnlySpan<EntityCommand>    EntityCommands          => new (intern.entityCommands, 0, intern.entityCommandCount);
     internal ComponentCommands[]            ComponentCommands       => GetComponentCommands();
     #endregion
@@ -64,9 +60,6 @@ public sealed class CommandBuffer
         //
         internal            TagCommand[]        tagCommands;
         internal            int                 tagCommandsCount;
-        //
-        internal            ScriptCommand[]     scriptCommands;
-        internal            int                 scriptCommandsCount;
         //
         internal            EntityCommand[]     entityCommands;
         internal            int                 entityCommandCount;
@@ -92,7 +85,6 @@ public sealed class CommandBuffer
             hasCommands             = false;
             changedComponentTypes   = default;
             tagCommandsCount        = 0;
-            scriptCommandsCount     = 0;
             entityCommandCount      = 0;
         }
     }
@@ -111,7 +103,6 @@ public sealed class CommandBuffer
         var commands    = new ComponentCommands[schema.maxStructIndex];
         intern = new Intern(store, commands) {
             tagCommands     = Array.Empty<TagCommand>(),
-            scriptCommands  = Array.Empty<ScriptCommand>(),
             entityCommands  = Array.Empty<EntityCommand>()
         };
     }
@@ -157,9 +148,6 @@ public sealed class CommandBuffer
             UpdateEntityArchetypes      (playback);
             if (hasComponentChanges) {
                 ExecuteComponentCommands(playback);
-            }
-            if (intern.scriptCommandsCount > 0) {
-                ExecuteScriptCommands();
             }
         }
         finally {
@@ -240,27 +228,7 @@ public sealed class CommandBuffer
             MapUtils.Set(entityChanges, entityId, change);
         }
     }
-    
-    private void ExecuteScriptCommands()
-    {
-        var commands    = intern.scriptCommands.AsSpan(0, intern.scriptCommandsCount);
-        var store       = intern.store;
-
-        foreach (var command in commands)
-        {
-            var entity = new Entity(store, command.entityId);
-            switch (command.action)
-            {
-                case ScriptChangedAction.Add:
-                    EntityUtils.AddScript(entity, command.script);
-                    break;
-                case ScriptChangedAction.Remove:
-                    EntityUtils.RemoveScript(entity, command.scriptIndex);
-                    break;
-            }
-        }
-    }
-    
+  
     private void PrepareComponentCommands(Playback playback)
     {
         var componentCommands = intern.componentCommandTypes;
@@ -459,44 +427,6 @@ public sealed class CommandBuffer
         command.change      = change;
     }
 #endregion
-
-#region script
-    /// <summary>
-    /// Add the given <paramref name="script"/> to the entity with the passed <paramref name="entityId"/>.
-    /// </summary>
-    public void AddScript<T>(int entityId, T script)
-        where T : Script, new()
-    {
-        ChangeScript(entityId, script, ScriptType<T>.Index, ScriptChangedAction.Add);
-    }
-        
-    /// <summary>
-    /// Remove the <see cref="Script"/> of the specified type <typeparamref name="T"/> from the entity with the passed <paramref name="entityId"/>.
-    /// </summary>
-    public void RemoveScript<T>(int entityId)
-        where T : Script, new()
-    {
-        ChangeScript(entityId, null, ScriptType<T>.Index, ScriptChangedAction.Remove);
-    }
-    
-    private void ChangeScript(int entityId, Script script, int scriptIndex, ScriptChangedAction action)
-    {
-        if (intern.returnedBuffer) {
-            throw CannotReuseCommandBuffer();
-        }
-        var count =  intern.scriptCommandsCount;
-        if (count == intern.scriptCommands.Length) {
-            ArrayUtils.Resize(ref intern.scriptCommands, Math.Max(4, 2 * count));
-        }
-        intern.hasCommands          = true;
-        intern.scriptCommandsCount  = count + 1;
-        ref var command     = ref intern.scriptCommands[count];
-        command.scriptIndex = (byte)scriptIndex;
-        command.action      = action;
-        command.entityId    = entityId;
-        command.script      = script;
-    }
-    #endregion
 
 #region entity
     /// <summary>

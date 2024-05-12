@@ -52,7 +52,7 @@ public static void CreateEntity()
     foreach (var entity in store.Entities) {
         Console.WriteLine($"entity {entity}");
     }
-    // > entity id: 1  []       Info:  []  shows entity has no components, tags or scripts
+    // > entity id: 1  []       Info:  []  shows entity has no components or tags
     // > entity id: 2  []
 }
 
@@ -71,7 +71,6 @@ public static void DisableEntity()
     Console.WriteLine($"disabled - {disabled}");        // > disabled - Query: []  Count: 1
 }
 
-[ComponentKey("my-component")]
 public struct MyComponent : IComponent {
     public int value;
 }
@@ -113,23 +112,6 @@ public static void AddTags()
     Console.WriteLine($"tag1: {tag1}");                 // > tag1: True
 }
 
-public class MyScript : Script { public int data; }
-
-[Test]
-public static void AddScript()
-{
-    var store   = new EntityStore();
-    var entity  = store.CreateEntity();
-    
-    // add script
-    entity.AddScript(new MyScript{ data = 123 });
-    Console.WriteLine($"entity: {entity}");             // > entity: id: 1  [*MyScript]
-    
-    // get script
-    var myScript = entity.GetScript<MyScript>();
-    Console.WriteLine($"data: {myScript.data}");        // > data: 123
-}
-
 [Test]
 public static void AddEventHandlers()
 {
@@ -137,11 +119,9 @@ public static void AddEventHandlers()
     var entity  = store.CreateEntity();
     entity.OnComponentChanged     += ev => { Console.WriteLine(ev); }; // > entity: 1 - event > Add Component: [MyComponent]
     entity.OnTagsChanged          += ev => { Console.WriteLine(ev); }; // > entity: 1 - event > Add Tags: [#MyTag1]
-    entity.OnScriptChanged        += ev => { Console.WriteLine(ev); }; // > entity: 1 - event > Add Script: [*MyScript]
 
     entity.AddComponent(new MyComponent());
     entity.AddTag<MyTag1>();
-    entity.AddScript(new MyScript());
 }
 
 public readonly struct MySignal { }

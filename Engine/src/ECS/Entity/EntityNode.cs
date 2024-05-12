@@ -14,7 +14,7 @@ using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
 namespace Friflo.Engine.ECS;
 
 /// <summary>
-/// Used by the <see cref="EntityStore"/> to store <see cref="Entity"/> components, scripts, tags and child entities
+/// Used by the <see cref="EntityStore"/> to store <see cref="Entity"/> components, tags and child entities
 /// internally as an array of nodes.
 /// </summary> 
 /// <remarks>
@@ -69,7 +69,6 @@ public struct EntityNode
     /// <remarks> Is set to null only in <see cref="EntityStore.DeleteNode"/>. </remarks>
     [Browse(Never)] internal    Archetype       archetype;      //  8   can be null. Could use int to relieve GC tracing reference types 
     [Browse(Never)] internal    int             compIndex;      //  4   index within Archetype.entityIds & StructHeap<>.components
-    [Browse(Never)] internal    int             scriptIndex;    //  4   0 if entity has no scripts
     /// <remarks> Used to avoid enumeration of <see cref="EntityStore.Intern.signalHandlers"/> </remarks>
                     internal    byte            signalTypeCount;//  1   number of different signal types attached to the entity. 
                     internal    HasEventFlags   hasEvent;       //  1   bit is 1 in case an event handler is attached to the entity. 
@@ -112,8 +111,7 @@ public struct EntityNode
 /// <summary>
 /// Use to avoid Dictionary lookups for:
 /// <see cref="EntityStoreBase.InternBase.entityComponentChanged"/><br/>
-/// <see cref="EntityStoreBase.InternBase.entityTagsChanged"/><br/>
-/// <see cref="EntityStore.Intern.entityScriptChanged"/><br/>
+/// <see cref="EntityStoreBase.InternBase.entityTagsChanged"/>
 /// </summary>
 [Flags]
 internal enum HasEventFlags : byte
@@ -122,8 +120,6 @@ internal enum HasEventFlags : byte
     ComponentChanged        = 1,
     /// <summary> Bit is set - <see cref="EntityStoreBase.InternBase.entityTagsChanged"/>.Count > 0<br/> </summary>
     TagsChanged             = 2,
-    /// <summary> Bit is set - <see cref="EntityStore.Intern.entityScriptChanged"/>.Count > 0<br/> </summary>
-    ScriptChanged           = 4,
 }
 
 

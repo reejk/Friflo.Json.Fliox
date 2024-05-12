@@ -12,7 +12,6 @@ namespace Friflo.Engine.ECS;
 internal sealed class SchemaTypes
 {
     internal readonly   List<ComponentType> components  = new ();
-    internal readonly   List<ScriptType>    scripts     = new ();
     internal readonly   List<TagType>       tags        = new ();
 }
 
@@ -65,18 +64,6 @@ internal static class SchemaUtils
                 schemaTypes.components.Add(componentType);
                 return componentType;
             }
-        } else {
-            if (type.IsSubclassOf(typeof(Script)))
-            {
-                // type: Script
-                var scriptIndex     = schemaTypes.scripts.Count + 1;
-                var createParams    = new object[] { scriptIndex };
-                var method          = typeof(SchemaUtils).GetMethod(nameof(CreateScriptType), flags);
-                var genericMethod   = method!.MakeGenericMethod(type);
-                var scriptType      = (ScriptType)genericMethod.Invoke(null, createParams);
-                schemaTypes.scripts.Add(scriptType);
-                return scriptType;
-            }
         }
         throw new InvalidOperationException($"Cannot create SchemaType for Type: {type}");
     }
@@ -84,81 +71,7 @@ internal static class SchemaUtils
     internal static ComponentType CreateComponentType<T>(int structIndex)
         where T : struct, IComponent
     {
-        var componentKey    = GetComponentKey(typeof(T));
-        return new ComponentType<T>(componentKey, structIndex);
-    }
-    
-    /// <remarks>
-    /// <see cref="ScriptType{T}.Index"/> must be assigned here.<br/>
-    /// Unity initializes static fields of generic types already when creating a instance of that type.
-    /// </remarks>
-    internal static ScriptType CreateScriptType<T>(int scriptIndex)
-        where T : Script, new()
-    {
-        var scriptKey   = GetComponentKey(typeof(T));
-        return new ScriptType<T>(scriptKey, scriptIndex);
-    }
-    
-    private static string GetComponentKey(Type type)
-    {
-        foreach (var attr in type.CustomAttributes) {
-            if (attr.AttributeType != typeof(ComponentKeyAttribute)) {
-                continue;
-            }
-            var arg = attr.ConstructorArguments;
-            return (string) arg[0].Value;
-        }
-        return type.Name;
-    }
-    
-    internal static void GetComponentSymbol(Type type, out string name, out SymbolColor? color)
-    {
-        name    = null;
-        color   = default;
-        foreach (var attr in type.CustomAttributes) {
-            if (attr.AttributeType != typeof(ComponentSymbolAttribute)) {
-                continue;
-            }
-            var arg = attr.ConstructorArguments;
-            if (arg.Count > 0) {
-                name    = (string)arg[0].Value;
-            }
-            if (arg.Count > 1) {
-                color = ParseColor((string)arg[1].Value);
-            }
-        }
-        name = GetSymbolName(name, type);
-    }
-    
-    private static string GetSymbolName(string name, Type type)
-    {
-        if (name == null) {
-            return type.Name.Substring(0, 1);
-        }
-        name = name.Substring(0, Math.Min(3, name.Length));
-        name = name.Trim();
-        if (name.Length == 0) {
-            return type.Name.Substring(0, 1);
-        }
-        return name;
-    } 
-    
-    private static SymbolColor? ParseColor(string color)
-    {
-        if (color == null) {
-            return null;
-        }
-        var colors = color.Split(',');
-        if (colors.Length != 3) {
-            return default;
-        }
-        if (byte.TryParse(colors[0], out byte r) &&
-            byte.TryParse(colors[1], out byte g) &&
-            byte.TryParse(colors[2], out byte b))
-        {
-            return new SymbolColor(r, g, b);
-        }
-        return null;
+        return new ComponentType<T>(structIndex);
     }
     
     /// <remarks>
@@ -168,19 +81,6 @@ internal static class SchemaUtils
     internal static TagType CreateTagType<T>(int tagIndex)
         where T : struct, ITag
     {
-        var tagName = GetTagName(typeof(T));
-        return new TagType(tagName, typeof(T), tagIndex);
+        return new TagType(typeof(T), tagIndex);
     }
-    
-    private static string GetTagName(Type type)
-    {
-        foreach (var attr in type.CustomAttributes) {
-            if (attr.AttributeType != typeof(TagNameAttribute)) {
-                continue;
-            }
-            var arg     = attr.ConstructorArguments;
-            return (string) arg[0].Value;
-        }
-        return type.Name;
-    }    
 }

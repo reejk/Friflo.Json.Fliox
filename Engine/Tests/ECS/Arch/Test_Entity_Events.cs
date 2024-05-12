@@ -93,32 +93,6 @@ public static class Test_Entity_Events
         AreEqual(2, entity1EventCount);
     }
     
-    [Test]
-    public static void Test_Entity_Events_OnScriptChanged()
-    {
-        var store       = new EntityStore(PidType.RandomPids);
-        var entity1     = store.CreateEntity(1);
-        var entity2     = store.CreateEntity(2);
-
-        var entity1EventCount = 0;
-        Action<ScriptChanged> onScriptChanged = (args)    => {
-            switch (entity1EventCount++) {
-                case 0:     AreEqual("entity: 1 - event > Add Script: [*TestScript1]", args.ToString()); break;
-                default:    Fail("unexpected"); break;
-            }
-        };
-        entity1.OnScriptChanged += onScriptChanged; 
-
-        entity1.AddScript(new TestScript1());
-        entity2.AddScript(new TestScript2());
-        
-        entity1.OnScriptChanged -= onScriptChanged; 
-        
-        entity1.AddScript(new TestScript1());
-        
-        AreEqual(1, entity1EventCount);
-    }
-    
     /// <summary>
     /// Note: Add signal handlers with different event types in specified order<b/>
     /// to cover null items in <see cref="EntityStore.Intern.signalHandlers"/>
@@ -201,7 +175,6 @@ public static class Test_Entity_Events
         entity.OnComponentChanged     += _ => { };
         entity.OnComponentChanged     += _ => { };
         entity.OnTagsChanged          += _ => { };
-        entity.OnScriptChanged        += _ => { };
         entity.AddSignalHandler<MyEvent1>(_ => { });
         
         var handlers = entity.DebugEventHandlers;
@@ -212,7 +185,6 @@ public static class Test_Entity_Events
         
         AreEqual(typeof(ComponentChanged),      handlers[0].Type);
         AreEqual(typeof(TagsChanged),           handlers[1].Type);
-        AreEqual(typeof(ScriptChanged),         handlers[2].Type);
         AreEqual(typeof(MyEvent1),               handlers[4].Type);
         
         AreEqual("ComponentChanged - Count: 2",       handlers[0].ToString());

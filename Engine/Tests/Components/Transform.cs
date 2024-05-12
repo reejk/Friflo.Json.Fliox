@@ -9,7 +9,6 @@ using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Engine.ECS;
 
-[ComponentKey("trans")]
 [StructLayout(LayoutKind.Explicit)]
 public struct  Transform : IComponent
 {

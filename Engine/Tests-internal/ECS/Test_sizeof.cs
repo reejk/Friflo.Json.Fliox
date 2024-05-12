@@ -87,22 +87,6 @@ public static class Test_sizeof
     }
     
     [Test]
-    public static unsafe void Test_Scripts_sizeof()
-    {
-        var size = sizeof(EntityScripts);
-        AreEqual(16, size);
-        
-        var scripts       = new EntityScripts();
-        AreEqual("unused", scripts.ToString());
-        
-        var scriptsArray  = new Script[] { new TestScript() };
-        scripts           = new EntityScripts(1, scriptsArray);
-        AreEqual("id: 1  [*TestScript]", scripts.ToString());
-    }
-    
-    class TestScript : Script { }
-    
-    [Test]
     public static unsafe void Test_sizeof_CommandBuffer_structs()
     {
         var size = sizeof(TagCommand);

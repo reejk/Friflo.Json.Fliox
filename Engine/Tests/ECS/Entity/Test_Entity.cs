@@ -26,41 +26,6 @@ public static class Test_Entity
     }
     
     [Test]
-    public static void Test_Entity_non_generic_Script_methods()
-    {
-        var store       = new EntityStore(PidType.RandomPids);
-        var entity      = store.CreateEntity();
-        var schema      = EntityStore.GetEntitySchema();
-        var script1Type = schema.ScriptTypeByType[typeof(TestScript1)];
-        var script2Type = schema.ScriptTypeByType[typeof(TestScript2)];
-        
-        EntityUtils.AddNewEntityScript(entity, script1Type);
-        var script1     = EntityUtils.GetEntityScript(entity, script1Type);
-        AreEqual(1,                     entity.Scripts.Length);
-        AreSame(typeof(TestScript1),    script1.GetType());
-        
-        var script2 = new TestScript2();
-        EntityUtils.AddEntityScript(entity, script2);
-        var script2Result = EntityUtils.GetEntityScript(entity, script2Type);
-        AreSame(script2, script2Result);
-        AreEqual(2,                     entity.Scripts.Length);
-        
-        // --- remove script1
-        EntityUtils.RemoveEntityScript(entity, script1Type);
-        AreEqual(1,                     entity.Scripts.Length);
-        // remove same script type again
-        EntityUtils.RemoveEntityScript(entity, script1Type);
-        AreEqual(1,                     entity.Scripts.Length);
-        
-        // --- remove script2
-        EntityUtils.RemoveEntityScript(entity, script2Type);
-        AreEqual(0,                     entity.Scripts.Length);
-        // remove same script type again
-        EntityUtils.RemoveEntityScript(entity, script1Type);
-        AreEqual(0,                     entity.Scripts.Length);
-    }
-    
-    [Test]
     public static void Test_Entity_non_generic_Component_methods()
     {
         var store           = new EntityStore(PidType.RandomPids);
@@ -172,32 +137,19 @@ public static class Test_Entity
     {
         var store       = new EntityStore(PidType.RandomPids);
         var entity      = store.CreateEntity();
-        var script1     = new TestScript1();
-        entity.AddScript(script1);
         entity.AddComponent(new EntityName("original"));
         entity.AddTag<TestTag>();
         
-        // --- clone entity with blittable components & scripts
+        // --- clone entity with blittable components
         var clone = store.CloneEntity(entity);
         
         AreEqual("Tags: [#TestTag]",            clone.Tags.ToString());
         AreEqual("Components: [EntityName]",    clone.Components.ToString());
-        AreEqual(1,                             clone.Scripts.Length);
-        NotNull(clone.GetScript<TestScript1>());
-        AreNotSame(script1,                     clone.Scripts[0]);
         
         // --- clone entity with non blittable component
         entity.AddComponent<NonBlittableArray>();
         clone = store.CloneEntity(entity);
         AreEqual("Components: [EntityName, NonBlittableArray]",    clone.Components.ToString());
-        
-        // --- clone entity with non blittable script
-        entity.RemoveComponent<NonBlittableArray>();
-        entity.AddScript(new NonBlittableScript());
-        clone = store.CloneEntity(entity);
-        
-        AreEqual(2,                             clone.Scripts.Length);
-        NotNull(clone.GetScript<NonBlittableScript>());
     }
     
     [Test]
