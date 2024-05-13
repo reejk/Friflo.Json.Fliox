@@ -105,7 +105,7 @@ public static class Test_SchemaType
         var sw      = new Stopwatch();
         sw.Start();
         for (long n = 0; n < count; n++) {
-            _ = entity.Position;
+            _ = entity.GetComponent<Position>();
         }
         Console.WriteLine($"Entity.Position - duration: {sw.ElapsedMilliseconds} ms");
     }
